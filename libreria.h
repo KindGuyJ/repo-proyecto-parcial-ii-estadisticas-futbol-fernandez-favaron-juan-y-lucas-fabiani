@@ -15,6 +15,11 @@ struct partido
     string Competicion;
 };
 
+struct top5 {
+    string competiciones[10];
+    partido partidos[50];
+};
+
 // Capaz cambiar el asignar y get para que den el objeto pero bueno no los use para nada todavia.
 class dataclass
 {
@@ -98,4 +103,8 @@ public:
             break;
         }
     }
+    partido* last(){
+        return &(*data.end());
+    }
+
 };
