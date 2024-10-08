@@ -6,18 +6,13 @@ using namespace std;
 
 struct partido
 {
-    string Jornada;
-    string Fecha;
-    string EquipoLocal;
-    string GolesLocal;
-    string GolesVisitante;
-    string EquipoVisitante;
-    string Competicion;
-};
-
-struct top5 {
-    string competiciones[10];
-    partido partidos[50];
+    string Jornada="";
+    string Fecha="";
+    string EquipoLocal="";
+    int GolesLocal=0;
+    int GolesVisitante=0;
+    string EquipoVisitante="";
+    string Competicion="";
 };
 
 // Capaz cambiar el asignar y get para que den el objeto pero bueno no los use para nada todavia.
@@ -53,10 +48,10 @@ public:
             data[o].EquipoLocal = x;
             break;
         case 3:
-            data[o].GolesLocal = x;
+            data[o].GolesLocal = stoi(x);
             break;
         case 4:
-            data[o].GolesVisitante = x;
+            data[o].GolesVisitante = stoi(x);
             break;
         case 5:
             data[o].EquipoVisitante = x;
@@ -87,10 +82,10 @@ public:
             return data[o].EquipoLocal;
             break;
         case 3:
-            return data[o].GolesLocal;
+            return to_string(data[o].GolesLocal);
             break;
         case 4:
-            return data[o].GolesVisitante;
+            return to_string(data[o].GolesVisitante);
             break;
         case 5:
             return data[o].EquipoVisitante;
