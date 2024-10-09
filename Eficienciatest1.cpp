@@ -6,20 +6,36 @@
 using namespace std;
 
 struct top5 {
-    string competiciones[10];
-    partido partidos[50];
+    vector<string> competiciones;
+    vector<vector<partido>> partidos;
 
-    //No es lindo
+    //Movido como funcion del struct
+    void print(){
+            for (int i = 0; i < competiciones.size(); i++)
+    {
+        if (competiciones[i] == "*"){break;}
+        cout << endl <<"Competicion: " << competiciones[i] << endl;
+        cout <<setw(25)<<"Jornada"<<setw(15)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(10)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
+        for (int j = 5; j > 0; j--)
+        {
+            cout << setw(30) << partidos[i][j-1].Jornada << "\t"
+                 << setw(15) << partidos[i][j-1].Fecha << "\t"
+                 << setw(30) << partidos[i][j-1].EquipoLocal << "\t"
+                 << setw(30) << partidos[i][j-1].EquipoVisitante << "\t"
+                 << setw(10) << partidos[i][j-1].GolesLocal << "\t"
+                 << setw(10) << partidos[i][j-1].GolesVisitante << "\n";
+        }
+    }
+    }
     void best(partido x,int n){
-        n=n*5;
-        for(int i=n;i<n+5;i++){
-            if ((x.GolesLocal+x.GolesVisitante)>=(partidos[i].GolesLocal+partidos[i].GolesVisitante)){
-                partido t = partidos[i];
-                partidos[i]=x;
-                for (int j = i+1; j < n+5; j++)
+        for(int i=0;i<5;i++){
+            if ((x.GolesLocal+x.GolesVisitante)>=(partidos[n][i].GolesLocal+partidos[n][i].GolesVisitante)){
+                partido t = partidos[n][i];
+                partidos[n][i]=x;
+                for (int j = i+1; j < 5; j++)
                 {
-                    x = partidos[j];
-                    partidos[j] = t;
+                    x = partidos[n][j];
+                    partidos[n][j] = t;
                     t = x;
                 }
                 break;
@@ -33,6 +49,8 @@ int main() {
     string linea;
     ifstream archivo("Base_Datos_COMA.csv");
     top5 best;
+    best.competiciones.push_back("*");//Y te preguntaras porque no uso "" vacio y es porque en la base de datos hay competencias
+                                      //que aparecen como ""
     getline(archivo,linea);
 
     clock_t begin;
@@ -55,17 +73,24 @@ int main() {
         getline(stream,carga.EquipoVisitante,',');
         getline(stream,carga.Competicion,',');
         //Aca pasa la magia pero no vale mirar atras de la cortina :(
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < best.competiciones.size(); i++)
         {
             if (best.competiciones[i]==carga.Competicion){
                 //Este if de abajo le saca 0.02 segundos
-                if ((carga.GolesLocal+carga.GolesVisitante)>=(best.partidos[i*5+4].GolesLocal+best.partidos[i*5+4].GolesVisitante)){
+                if ((carga.GolesLocal+carga.GolesVisitante)>=(best.partidos[i][4].GolesLocal+best.partidos[i][4].GolesVisitante)){
                     best.best(carga,i);
                 }
                 break;
             }
-            if (best.competiciones[i]==""){
+            if (best.competiciones[i]=="*"){
                 best.competiciones[i]=carga.Competicion;
+                best.competiciones.push_back("*");
+                best.partidos.push_back({});
+                best.partidos[i].push_back({});
+                best.partidos[i].push_back({});
+                best.partidos[i].push_back({});
+                best.partidos[i].push_back({});
+                best.partidos[i].push_back({});
                 best.best(carga,i);
                 break;
             }
@@ -74,27 +99,13 @@ int main() {
         cupholder.add(carga);
     }
     clock_t end = clock();
+
     archivo.close();
+    best.print();
 
     double elapsed_secs = static_cast<double>(end - begin) / CLOCKS_PER_SEC;
 
     cout << "Tardo elapsed_secs: " << elapsed_secs << "\n" << std::endl;
-
-    //Feo como ninguno este imprimir
-    for (int i = 0; i < 10; i++)
-    {
-        if (best.competiciones[i] == ""){break;}
-        cout << endl <<"Competicion: " << best.competiciones[i] << endl;
-        cout <<"Jornada                    \tFecha    \tEquipo Local                   \tEquipo Visitante            \tGoles Local\tGoles Visitante\n";
-        for (int j = 5; j > 0; j--)
-        {
-            cout << setw(30) << best.partidos[i * 5 + j-1].Jornada << "\t"
-                 << setw(15) << best.partidos[i * 5 + j-1].Fecha << "\t"
-                 << setw(30) << best.partidos[i * 5 + j-1].EquipoLocal << "\t"
-                 << setw(30) << best.partidos[i * 5 + j-1].EquipoVisitante << "\t"
-                 << setw(10) << best.partidos[i * 5 + j-1].GolesLocal << "\t"
-                 << setw(10) << best.partidos[i * 5 + j-1].GolesVisitante << "\n";
-        }
-    }
+    //Tardo elapsed_secs: 0.007
     return 0;
 }
