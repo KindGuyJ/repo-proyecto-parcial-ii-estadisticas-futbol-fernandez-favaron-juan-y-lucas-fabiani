@@ -1,13 +1,45 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <sstream> //para stream
+
 
 using namespace std;
+
+struct Date {
+    int dia, mes, year;
+
+    Date(const string& s) {
+        sscanf(s.c_str(), "%d/%d/%d", &dia, &mes, &year);
+    }
+
+    Date(){
+        dia=0;mes=0;year=0;
+    }
+
+    bool operator>(const Date& other) const {
+        if (year != other.year) return year > other.year;
+        if (mes != other.mes) return mes > other.mes;
+        return dia > other.dia;
+    }
+    
+    bool operator==(const Date& other) const {
+        if (year == other.year && mes == other.mes && dia > other.dia) return true;
+        else return false;
+    }
+
+    //Conversor a string
+    std::string toString() const {
+        std::ostringstream oss;
+        oss << dia << "/" << mes << "/" << year;
+        return oss.str();
+    }
+};
 
 struct partido
 {
     string Jornada="";
-    string Fecha="";
+    Date Fecha;
     string EquipoLocal="";
     int GolesLocal=0;
     int GolesVisitante=0;
@@ -76,7 +108,7 @@ public:
             return data[o].Jornada;
             break;
         case 1:
-            return data[o].Fecha;
+            return data[o].Fecha.toString();
             break;
         case 2:
             return data[o].EquipoLocal;
@@ -98,6 +130,7 @@ public:
             break;
         }
     }
+    // De donde salio esto????
     partido* last(){
         return &(*data.end());
     }

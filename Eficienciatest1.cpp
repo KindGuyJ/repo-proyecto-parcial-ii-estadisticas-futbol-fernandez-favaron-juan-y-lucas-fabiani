@@ -1,6 +1,5 @@
 #include <ctime>
 #include"libreria.h"
-#include <sstream> //para stream
 #include <iomanip>
 
 using namespace std;
@@ -19,7 +18,7 @@ struct top5 {
         for (int j = 5; j > 0; j--)
         {
             cout << setw(30) << partidos[i][j-1].Jornada << "\t"
-                 << setw(15) << partidos[i][j-1].Fecha << "\t"
+                 << setw(15) << partidos[i][j-1].Fecha.toString() << "\t"
                  << setw(30) << partidos[i][j-1].EquipoLocal << "\t"
                  << setw(30) << partidos[i][j-1].EquipoVisitante << "\t"
                  << setw(10) << partidos[i][j-1].GolesLocal << "\t"
@@ -64,7 +63,8 @@ int main() {
         partido carga;
         string temp;
         getline(stream,carga.Jornada,',');
-        getline(stream,carga.Fecha,',');
+        getline(stream,temp,',');
+        carga.Fecha = temp;
         getline(stream,carga.EquipoLocal,',');
         getline(stream,temp,',');
         carga.GolesLocal = stoi(temp);
