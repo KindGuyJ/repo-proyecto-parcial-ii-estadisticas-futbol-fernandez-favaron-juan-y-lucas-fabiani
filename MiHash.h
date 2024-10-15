@@ -11,25 +11,18 @@ private:
   unsigned int tamanio;
 
   static unsigned int hashFunc(K clave);
-
   unsigned int (*hashFuncP)(K clave);
 
 public:
   explicit HashMap(unsigned int k);
-
   HashMap(unsigned int k, unsigned int (*hashFuncP)(K clave));
-
   T get(K clave);
-
   void put(K clave, T valor);
-
   void remove(K clave);
-
   ~HashMap();
-
   bool esVacio();
-
   void print();
+  unsigned int espacioRestante();
 };
 
 template <class K, class T>
@@ -76,29 +69,37 @@ T HashMap<K, T>::get(K clave)
   {
     throw 404;
   }
-  if(tabla[pos]->getClave() == clave){
+  if (tabla[pos]->getClave() == clave)
+  {
     return tabla[pos]->getValor();
-  }else{
+  }
+  else
+  {
     throw 409;
   }
 }
 
 template <class K, class T>
-void HashMap<K, T>::put(K clave, T valor) {
-    unsigned int pos = hashFuncP(clave) % tamanio;
+void HashMap<K, T>::put(K clave, T valor)
+{
+  unsigned int pos = hashFuncP(clave) % tamanio;
+  unsigned int originalPos = pos;
 
-    if (tabla[pos] != NULL) {
-        // Si la clave ya existe, reemplaza el valor
-        if (tabla[pos]->getClave() == clave) {
-            tabla[pos]->setValor(valor);
-            return;
-        }
-        // Si no coincide la clave, reemplazamos el contenido con la nueva entrada
-        delete tabla[pos]; // Liberar la memoria de la entrada anterior
+  while (tabla[pos] != NULL)
+  {
+    if (tabla[pos]->getClave() == clave)
+    {
+      tabla[pos]->setValor(valor); // Si la clave ya existe, actualiza el valor
+      return;
     }
+    pos = (pos + 1) % tamanio; // Open Hashing por si se repite la clave (muy probable)
+    if (pos == originalPos)
+    {
+      throw std::overflow_error("Se lleno el hash????");
+    }
+  }
 
-    // Crear una nueva entrada en la posición calculada
-    tabla[pos] = new HashEntry<K, T>(clave, valor);
+  tabla[pos] = new HashEntry<K, T>(clave, valor);
 }
 
 template <class K, class T>
@@ -145,4 +146,17 @@ void HashMap<K, T>::print()
   }
 }
 
+template <class K, class T>
+unsigned int HashMap<K, T>::espacioRestante()
+{
+  unsigned int x=0;
+  for (int i = 0; i < tamanio; i++)
+  {
+    if (tabla[i] != NULL)
+    {
+      x++;
+    }
+  }
+  return x;
+}
 #endif // U05_HASH_HASHMAP_HASHMAP_H_

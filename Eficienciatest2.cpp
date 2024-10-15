@@ -23,6 +23,7 @@ struct statsequipo{
     int partidos=0;
     Date MejorFecha;
     Date PeorFecha;
+    vector<int> lista;
 
     void print(){
         cout << "Victorias: " << win << endl;
@@ -34,6 +35,19 @@ struct statsequipo{
         cout << "Mejor fecha: " << MejorFecha.toString() << endl;
         cout << "Peor fecha: " << PeorFecha.toString() << endl;
         cout << "Partidos: " << partidos << endl;
+        /*partidos todos
+        cout<<"Partidos jugados: "<<endl;
+        cout<<setw(25)<<"Jornada"<<setw(8)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(8)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
+        for (int i=0;i<lista.size();i++)
+        {
+            cout << setw(25) << lista[i]->Jornada << "\t"
+                 << setw(8) << lista[i]->Fecha.toString() << "\t"
+                 << setw(30) << lista[i]->EquipoLocal << "\t"
+                 << setw(30) << lista[i]->EquipoVisitante << "\t"
+                 << setw(8) << lista[i]->GolesLocal << "\t"
+                 << setw(10) << lista[i]->GolesVisitante << "\n";
+        }*/
+
     }
 
 };
@@ -47,17 +61,19 @@ private:
 public:
     Stats();
     ~Stats();
-    void Ingresar(partido p);
-    void print(string equipo, string competencia);
+    void Ingresar(partido &p); //Se puede usar para cargar el partido desde cupholder
+    void print(string equipo, string competencia); //No es final, solo debugging
+    void llenado(); 
+
 };
 
-Stats::Stats():golesporcompetencia(100, customHashFunc), BigData(10000, customHashFunc) {
+Stats::Stats():golesporcompetencia(30, customHashFunc), BigData(1000, customHashFunc) {
 }
 Stats::~Stats()
 {
 };
 
-void Stats::Ingresar(partido p)
+void Stats::Ingresar(partido &p)
 {
     competiciones.insert(p.Competicion);
     statsequipo temp;
@@ -71,6 +87,7 @@ void Stats::Ingresar(partido p)
         if (p.GolesLocal>p.GolesVisitante) temp.win++;
         else temp.lost++;
         temp.partidos++;
+        temp.lista.push_back(&p);//Para llamar los partidos del equipo
         BigData.put(p.EquipoLocal+p.Competicion,temp);
     }
     catch(int e){
@@ -82,6 +99,7 @@ void Stats::Ingresar(partido p)
         if (p.GolesLocal>p.GolesVisitante) temp.win++;
         else temp.lost++;
         temp.partidos++;
+        temp.lista.push_back(&p);//Para llamar los partidos del equipo
         BigData.put(p.EquipoLocal+p.Competicion,temp);
     }
 
@@ -95,6 +113,7 @@ void Stats::Ingresar(partido p)
         if (p.GolesVisitante>p.GolesLocal) temp.win++;
         else temp.lost++;
         temp.partidos++;
+        temp.lista.push_back(&p);//Para llamar los partidos del equipo
         BigData.put(p.EquipoVisitante+p.Competicion,temp);
     }
     catch(int e){
@@ -106,6 +125,7 @@ void Stats::Ingresar(partido p)
         if (p.GolesVisitante>p.GolesLocal) temp.win++;
         else temp.lost++;
         temp.partidos++;
+        temp.lista.push_back(&p);//Para llamar los partidos del equipo
         BigData.put(p.EquipoVisitante+p.Competicion,temp);
     }
 
@@ -136,14 +156,18 @@ void Stats::print(string equipo, string competencia){
     
 }
 
+void Stats::llenado(){ //Para saber si la tabla Hash es del tamaño correcto (143 de 10k xD), probablemente si pero soy autista
+    cout<<"Llenado de tabla golespc: "<<golesporcompetencia.espacioRestante()<<endl;
+    cout<<"Llenado de tabla BigData: "<<BigData.espacioRestante()<<endl;
 
+}
 
 int main() {
     dataclass cupholder;
     string linea;
     ifstream archivo("Base_Datos_COMA.csv");
     Stats allstats;
-    getline(archivo,linea);
+    getline(archivo,linea); //Header
 
     clock_t begin;
 
@@ -166,8 +190,8 @@ int main() {
         getline(stream,carga.EquipoVisitante,',');
         getline(stream,carga.Competicion,',');
         //Aca pasa la magia pero no vale mirar atras de la cortina :(
-        allstats.Ingresar(carga);
         cupholder.add(carga);
+        allstats.Ingresar(carga,cupholder.last());
     }
     clock_t end = clock();
 
@@ -181,6 +205,7 @@ int main() {
     getline(cin,a);
     getline(cin,b);
     allstats.print(a,b);
-    //Tardo elapsed_secs: 0.007
+    //Tardo elapsed_secs: 0.017
+    allstats.llenado();
     return 0;
 }

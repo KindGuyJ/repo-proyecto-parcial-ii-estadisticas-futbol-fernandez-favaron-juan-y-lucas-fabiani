@@ -22,6 +22,12 @@ struct Date {
         if (mes != other.mes) return mes > other.mes;
         return dia > other.dia;
     }
+
+    bool operator<(const Date& other) const { //totalmente innecesario
+        if (year != other.year) return year < other.year;
+        if (mes != other.mes) return mes < other.mes;
+        return dia < other.dia;
+    }
     
     bool operator==(const Date& other) const {
         if (year == other.year && mes == other.mes && dia > other.dia) return true;
@@ -130,9 +136,10 @@ public:
             break;
         }
     }
-    // De donde salio esto????
+    // fuckit
     partido* last(){
-        return &(*data.end());
+        if (data.empty()) throw 66;
+        return &data.back();
     }
 
 };

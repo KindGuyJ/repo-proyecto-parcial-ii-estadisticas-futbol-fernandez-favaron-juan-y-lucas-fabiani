@@ -14,14 +14,14 @@ struct top5 {
     {
         if (competiciones[i] == "*"){break;}
         cout << endl <<"Competicion: " << competiciones[i] << endl;
-        cout <<setw(25)<<"Jornada"<<setw(15)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(10)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
+        cout <<setw(25)<<"Jornada"<<setw(8)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(8)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
         for (int j = 5; j > 0; j--)
         {
-            cout << setw(30) << partidos[i][j-1].Jornada << "\t"
-                 << setw(15) << partidos[i][j-1].Fecha.toString() << "\t"
+            cout << setw(25) << partidos[i][j-1].Jornada << "\t"
+                 << setw(8) << partidos[i][j-1].Fecha.toString() << "\t"
                  << setw(30) << partidos[i][j-1].EquipoLocal << "\t"
                  << setw(30) << partidos[i][j-1].EquipoVisitante << "\t"
-                 << setw(10) << partidos[i][j-1].GolesLocal << "\t"
+                 << setw(8) << partidos[i][j-1].GolesLocal << "\t"
                  << setw(10) << partidos[i][j-1].GolesVisitante << "\n";
         }
     }
