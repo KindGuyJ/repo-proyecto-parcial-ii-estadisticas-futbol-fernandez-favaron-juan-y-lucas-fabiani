@@ -64,19 +64,22 @@ HashMap<K, T>::~HashMap()
 template <class K, class T>
 T HashMap<K, T>::get(K clave)
 {
-  unsigned int pos = hashFuncP(clave) % tamanio;
-  if (tabla[pos] == NULL)
-  {
+    unsigned int pos = hashFuncP(clave) % tamanio;
+    unsigned int originalPos = pos;
+
+    while (tabla[pos] != NULL)
+    {
+        if (tabla[pos]->getClave() == clave)
+        {
+            return tabla[pos]->getValor();
+        }
+        pos = (pos + 1) % tamanio;
+        if (pos == originalPos) // Si regresamos al inicio
+        {
+            break; // La clave no existe
+        }
+    }
     throw 404;
-  }
-  if (tabla[pos]->getClave() == clave)
-  {
-    return tabla[pos]->getValor();
-  }
-  else
-  {
-    throw 409;
-  }
 }
 
 template <class K, class T>

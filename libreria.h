@@ -66,10 +66,6 @@ public:
     {
         data.push_back(s);
     }
-    int size()
-    {
-        return data.size();
-    }
     /// @brief 
     /// @param o A cual de todos los vectores asignar
     /// @param x Nuevo string
