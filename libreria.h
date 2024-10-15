@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream> //para stream
+#include <iomanip> //para setw
 
 
 using namespace std;
@@ -60,6 +61,7 @@ private:
     vector<partido> data;
 
 public:
+
     void add(partido s)
     {
         data.push_back(s);
@@ -136,10 +138,34 @@ public:
             break;
         }
     }
-    // Devuelve un puntero a equipo
-    partido* last(){
-        if (data.empty()) throw 66;
-        return &data.back();
+    // fuckit
+    int last(){
+        return data.size()-1;
+    }
+    //no tendriamos que usar esta funcion directamente porque es un print en el objeto y tendriamos que hacer el print en main
+    void printlista(vector<int> lista){
+        //partidos todos
+        cout<<"Partidos jugados: "<<endl;
+        cout<<setw(25)<<"Jornada"<<setw(8)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(8)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
+        for (int i=0;i<lista.size();i++)
+        {
+            cout << setw(25) << data[lista[i]].Jornada << "\t"
+                 << setw(8) << data[lista[i]].Fecha.toString() << "\t"
+                 << setw(30) << data[lista[i]].EquipoLocal << "\t"
+                 << setw(30) << data[lista[i]].EquipoVisitante << "\t"
+                 << setw(8) << data[lista[i]].GolesLocal << "\t"
+                 << setw(10) << data[lista[i]].GolesVisitante << "\n";
+        }
+    }
+    //para hacer print en main...
+    vector<partido> bringlista(vector<int> lista){
+        //filtrar en main o otra funcion mas
+        vector<partido> truelista;
+        for (int i=0;i<lista.size();i++)
+        {
+            truelista.push_back(data[lista[i]]);
+        }
+        return truelista;
     }
 
 };

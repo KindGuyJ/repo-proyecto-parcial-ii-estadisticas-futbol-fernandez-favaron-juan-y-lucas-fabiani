@@ -1,6 +1,5 @@
 #include <ctime>
 #include "libreria.h"
-#include <iomanip>
 #include <unordered_set>
 #include "MiHash.h"
 
@@ -35,19 +34,6 @@ struct statsequipo{
         cout << "Mejor fecha: " << MejorFecha.toString() << endl;
         cout << "Peor fecha: " << PeorFecha.toString() << endl;
         cout << "Partidos: " << partidos << endl;
-        /*partidos todos
-        cout<<"Partidos jugados: "<<endl;
-        cout<<setw(25)<<"Jornada"<<setw(8)<<"\tFecha"<<setw(30)<<"\tEquipo Local"<<setw(30)<<"\tEquipo Visitante"<<setw(8)<<"\tGoles Local"<<setw(10)<<"\tGoles Visitante\n";
-        for (int i=0;i<lista.size();i++)
-        {
-            cout << setw(25) << lista[i]->Jornada << "\t"
-                 << setw(8) << lista[i]->Fecha.toString() << "\t"
-                 << setw(30) << lista[i]->EquipoLocal << "\t"
-                 << setw(30) << lista[i]->EquipoVisitante << "\t"
-                 << setw(8) << lista[i]->GolesLocal << "\t"
-                 << setw(10) << lista[i]->GolesVisitante << "\n";
-        }*/
-
     }
 
 };
@@ -61,9 +47,10 @@ private:
 public:
     Stats();
     ~Stats();
-    void Ingresar(partido &p); //Se puede usar para cargar el partido desde cupholder
+    void Ingresar(partido &p, int pp); //Se puede usar para cargar el partido desde cupholder
     void print(string equipo, string competencia); //No es final, solo debugging
     void llenado(); 
+    vector<int> partidos(string equipo, string competencia);
 
 };
 
@@ -73,7 +60,7 @@ Stats::~Stats()
 {
 };
 
-void Stats::Ingresar(partido &p)
+void Stats::Ingresar(partido &p, int pp)
 {
     competiciones.insert(p.Competicion);
     statsequipo temp;
@@ -87,7 +74,7 @@ void Stats::Ingresar(partido &p)
         if (p.GolesLocal>p.GolesVisitante) temp.win++;
         else temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(&p);//Para llamar los partidos del equipo
+        temp.lista.push_back(pp);//Para llamar los partidos del equipo
         BigData.put(p.EquipoLocal+p.Competicion,temp);
     }
     catch(int e){
@@ -99,7 +86,7 @@ void Stats::Ingresar(partido &p)
         if (p.GolesLocal>p.GolesVisitante) temp.win++;
         else temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(&p);//Para llamar los partidos del equipo
+        temp.lista.push_back(pp);//Para llamar los partidos del equipo
         BigData.put(p.EquipoLocal+p.Competicion,temp);
     }
 
@@ -113,7 +100,7 @@ void Stats::Ingresar(partido &p)
         if (p.GolesVisitante>p.GolesLocal) temp.win++;
         else temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(&p);//Para llamar los partidos del equipo
+        temp.lista.push_back(pp);//Para llamar los partidos del equipo
         BigData.put(p.EquipoVisitante+p.Competicion,temp);
     }
     catch(int e){
@@ -125,7 +112,7 @@ void Stats::Ingresar(partido &p)
         if (p.GolesVisitante>p.GolesLocal) temp.win++;
         else temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(&p);//Para llamar los partidos del equipo
+        temp.lista.push_back(pp);//Para llamar los partidos del equipo
         BigData.put(p.EquipoVisitante+p.Competicion,temp);
     }
 
@@ -144,6 +131,10 @@ void Stats::Ingresar(partido &p)
 
 }
 
+vector<int> Stats::partidos(string equipo, string competencia){
+    return BigData.get(equipo+competencia).lista;
+}
+
 void Stats::print(string equipo, string competencia){
     try
     {
@@ -152,6 +143,7 @@ void Stats::print(string equipo, string competencia){
     catch(int e)
     {
         cout << "Error: "<<e << '\n';
+        if (e==404){cout<<"Equipo no encontrado en competicion ingresada";}
     }
     
 }
@@ -159,7 +151,6 @@ void Stats::print(string equipo, string competencia){
 void Stats::llenado(){ //Para saber si la tabla Hash es del tamaño correcto (143 de 10k xD), probablemente si pero soy autista
     cout<<"Llenado de tabla golespc: "<<golesporcompetencia.espacioRestante()<<endl;
     cout<<"Llenado de tabla BigData: "<<BigData.espacioRestante()<<endl;
-
 }
 
 int main() {
@@ -205,6 +196,7 @@ int main() {
     getline(cin,a);
     getline(cin,b);
     allstats.print(a,b);
+    cupholder.printlista(allstats.partidos(a,b));
     //Tardo elapsed_secs: 0.017
     allstats.llenado();
     return 0;
