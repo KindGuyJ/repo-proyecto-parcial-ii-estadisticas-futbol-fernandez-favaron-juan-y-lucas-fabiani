@@ -136,7 +136,7 @@ public:
             break;
         }
     }
-    // fuckit
+    // Devuelve un puntero a equipo
     partido* last(){
         if (data.empty()) throw 66;
         return &data.back();
