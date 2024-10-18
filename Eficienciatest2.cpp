@@ -5,10 +5,15 @@
 
 using namespace std;
 
-unsigned int customHashFunc(std::string clave) {
-    unsigned int hash = 0;
+//Funcion de hash basada en FNV-1
+unsigned int customHashFunc(string clave) {
+    const unsigned int FNV_PRIME = 16777619u;
+    const unsigned int OFFSET_BASIS = 2166136261u;
+    
+    unsigned int hash = OFFSET_BASIS;
     for (char c : clave) {
-        hash = hash * 37 + static_cast<unsigned int>(c);
+        hash = hash * FNV_PRIME;
+        hash = hash ^ static_cast<unsigned int>(c);
     }
     return hash;
 }
