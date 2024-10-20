@@ -4,27 +4,28 @@
 #include <sstream> //para stream
 #include <iomanip> //para setw
 #include <unordered_set>
-#include "MiHash.h"
+#include "MiHash.h" //OpenHashing
 
 using namespace std;
 
-struct Date
+// Struct que representa una fecha, puede crease a partir de un string "DD/MM/AAAA"
+struct FECHA
 {
     int dia, mes, year;
 
-    Date(const string &s)
+    FECHA(const string &s)
     {
         sscanf(s.c_str(), "%d/%d/%d", &dia, &mes, &year);
     }
 
-    Date()
+    FECHA()
     {
         dia = 0;
         mes = 0;
         year = 0;
     }
 
-    bool operator>(const Date &other) const
+    bool operator>(const FECHA &other) const
     {
         if (year != other.year)
             return year > other.year;
@@ -33,7 +34,7 @@ struct Date
         return dia > other.dia;
     }
 
-    bool operator<(const Date &other) const
+    bool operator<(const FECHA &other) const
     { // totalmente innecesario
         if (year != other.year)
             return year < other.year;
@@ -42,7 +43,7 @@ struct Date
         return dia < other.dia;
     }
 
-    bool operator==(const Date &other) const
+    bool operator==(const FECHA &other) const
     {
         if (year == other.year && mes == other.mes && dia > other.dia)
             return true;
@@ -59,84 +60,85 @@ struct Date
     }
 };
 
-struct partido
+// Struct para guardar cada partido ingresado de manera eficiente
+struct PARTIDO
 {
-    string Jornada = "";
-    Date Fecha;
-    string EquipoLocal = "";
-    int GolesLocal = 0;
-    int GolesVisitante = 0;
-    string EquipoVisitante = "";
-    string Competicion = "";
+    string jornada = "";
+    FECHA fecha;
+    string equipolocal = "";
+    int goleslocales = 0;
+    int golesvisitantes = 0;
+    string equipovisitante = "";
+    string competicion = "";
 };
 
-struct BestofCompetencia
+struct MEJORES_PARTIDOS
 {
     int goals;
-    partido partidos[5];
-    string bestteam;
-    string worstteam;
+    PARTIDO PARTIDOs[5];
+    string mejorequipo;
+    string peorequipo;
 
     // Movido como funcion del struct pero puede ser una funcion aparte idealmente.
     void print(string competencia)
     {
         cout << endl
-             << "Competicion: " << competencia << endl;
-        cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
+             << "competicion: " << competencia << endl;
+        cout << setw(25) << "jornada" << setw(8) << "\tFECHA" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
         for (int i = 5; i > 0; i--)
         {
-            cout << setw(25) << partidos[i - 1].Jornada << "\t"
-                 << setw(8) << partidos[i - 1].Fecha.toString() << "\t"
-                 << setw(30) << partidos[i - 1].EquipoLocal << "\t"
-                 << setw(30) << partidos[i - 1].EquipoVisitante << "\t"
-                 << setw(8) << partidos[i - 1].GolesLocal << "\t"
-                 << setw(10) << partidos[i - 1].GolesVisitante << "\n";
+            cout << setw(25) << PARTIDOs[i - 1].jornada << "\t"
+                 << setw(8) << PARTIDOs[i - 1].fecha.toString() << "\t"
+                 << setw(30) << PARTIDOs[i - 1].equipolocal << "\t"
+                 << setw(30) << PARTIDOs[i - 1].equipovisitante << "\t"
+                 << setw(8) << PARTIDOs[i - 1].goleslocales << "\t"
+                 << setw(10) << PARTIDOs[i - 1].golesvisitantes << "\n";
         }
     }
 
-    void best(partido x)
+    void mejor(PARTIDO x)
     {
         for (int i = 0; i < 5; i++)
         {
-            if ((x.GolesLocal + x.GolesVisitante) > (partidos[i].GolesLocal + partidos[i].GolesVisitante))
+            if ((x.goleslocales + x.golesvisitantes) > (PARTIDOs[i].goleslocales + PARTIDOs[i].golesvisitantes))
             {
-                partido t = partidos[i];
-                partidos[i] = x;
+                PARTIDO t = PARTIDOs[i];
+                PARTIDOs[i] = x;
                 for (int j = i + 1; j < 5; j++)
                 {
-                    x = partidos[j];
-                    partidos[j] = t;
+                    x = PARTIDOs[j];
+                    PARTIDOs[j] = t;
                     t = x;
                 }
                 return;
             }
         }
-        // si los 5 partidos tienen los mismos goles se ejecuta esto, que no es lindo pero simple
-        if ((x.GolesLocal + x.GolesVisitante) == (partidos[0].GolesLocal + partidos[0].GolesVisitante))
+        // si los 5 PARTIDOs tienen los mismos goles se ejecuta esto, que no es lindo pero simple
+        if ((x.goleslocales + x.golesvisitantes) == (PARTIDOs[0].goleslocales + PARTIDOs[0].golesvisitantes))
         {
-            // Ordeno los 5 que ya estaban por fecha
+            // Ordeno los 5 que ya estaban por FECHA
             for (int i = 0; i < 5; i++)
             {
                 for (int j = 1; j < 5; j++)
                 {
-                    if ((partidos[i].Fecha) < (partidos[j].Fecha))
+                    if ((PARTIDOs[i].fecha) < (PARTIDOs[j].fecha))
                     {
-                        partido t = partidos[i];
-                        partidos[i] = partidos[j];
-                        partidos[j] = t;
+                        PARTIDO t = PARTIDOs[i];
+                        PARTIDOs[i] = PARTIDOs[j];
+                        PARTIDOs[j] = t;
                     }
                 }
             }
             for (int i = 0; i < 5; i++)
             {
-                if ((x.Fecha) > (partidos[i].Fecha))
+                if ((x.fecha) > (PARTIDOs[i].fecha))
                 {
-                    partido t = partidos[i];
-                    partidos[i] = x;
+                    PARTIDO t = PARTIDOs[i];
+                    PARTIDOs[i] = x;
                     for (int j = i + 1; j < 5; j++)
                     {
-                        x = partidos[j];
-                        partidos[j] = t;
+                        x = PARTIDOs[j];
+                        PARTIDOs[j] = t;
                         t = x;
                     }
                     return;
@@ -146,16 +148,17 @@ struct BestofCompetencia
     }
 };
 
-struct statsequipo
+// Struct para guardar los mejores partidos de una competición.
+struct ESTADISTICAS_EQUIPO
 {
     int win = 0;
     int lost = 0;
     int goles = 0;
-    int cgoles = 0;         // te metieron
-    int Fechas[2] = {0, 0}; //[0] es Mejor y [1] es Peor
+    int cgoles = 0;         // goles de los oponentes
+    int fechas[2] = {0, 0}; //[0] es Mejor y [1] es Peor
     int partidos = 0;
-    Date MejorFecha;
-    Date PeorFecha;
+    FECHA mejor_fecha;
+    FECHA peor_fecha;
     vector<int> lista;
 
     void print()
@@ -166,50 +169,51 @@ struct statsequipo
         cout << "Goles del oponente: " << cgoles << endl;
         cout << "Goles a favor en promedio: " << static_cast<float>(goles) / partidos << endl;
         cout << "Goles del oponente en promedio: " << static_cast<float>(cgoles) / partidos << endl;
-        cout << "Mejor fecha: " << MejorFecha.toString() << endl;
-        cout << "Peor fecha: " << PeorFecha.toString() << endl;
+        cout << "Mejor FECHA: " << mejor_fecha.toString() << endl;
+        cout << "Peor FECHA: " << peor_fecha.toString() << endl;
         cout << "Partidos: " << partidos << endl;
     }
 };
+// Clase para almacenar una lista de partidos y funciones para modificar los mismos.
 // Capaz cambiar el asignar y get para que den el objeto pero bueno no los use para nada todavia.
-class dataclass
+class ALMACEN
 {
 private:
-    vector<partido> data;
+    vector<PARTIDO> informacion;
 
 public:
-    void add(partido s)
+    void agregar(PARTIDO s)
     {
-        data.push_back(s);
+        informacion.push_back(s);
     }
     /// @brief
     /// @param o A cual de todos los vectores asignar
     /// @param x Nuevo string
-    /// @param i [0-6] 0-Jornada; 1-Fecha; 2-EquipoLocal; 3-GolesLocal; 4-GolesVisitante; 5-EquipoVisitante; 6-Competicion;
+    /// @param i [0-6] 0-jornada; 1-FECHA; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
     void assign(int o, string x, int i)
     {
         switch (i)
         {
         case 0:
-            data[o].Jornada = x;
+            informacion[o].jornada = x;
             break;
         case 1:
-            data[o].Fecha = x;
+            informacion[o].fecha = x;
             break;
         case 2:
-            data[o].EquipoLocal = x;
+            informacion[o].equipolocal = x;
             break;
         case 3:
-            data[o].GolesLocal = stoi(x);
+            informacion[o].goleslocales = stoi(x);
             break;
         case 4:
-            data[o].GolesVisitante = stoi(x);
+            informacion[o].golesvisitantes = stoi(x);
             break;
         case 5:
-            data[o].EquipoVisitante = x;
+            informacion[o].equipovisitante = x;
             break;
         case 6:
-            data[o].Competicion = x;
+            informacion[o].competicion = x;
             break;
         default:
             throw 666 - 1;
@@ -218,70 +222,75 @@ public:
     }
     /// @brief
     /// @param o A cual vector leer
-    /// @param i [0-6] 0-Jornada; 1-Fecha; 2-EquipoLocal; 3-GolesLocal; 4-GolesVisitante; 5-EquipoVisitante; 6-Competicion;
-    /// @return la data
+    /// @param i [0-6] 0-jornada; 1-FECHA; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
+    /// @return la informacion
     string get(int o, int i)
     {
         switch (i)
         {
         case 0:
-            return data[o].Jornada;
+            return informacion[o].jornada;
             break;
         case 1:
-            return data[o].Fecha.toString();
+            return informacion[o].fecha.toString();
             break;
         case 2:
-            return data[o].EquipoLocal;
+            return informacion[o].equipolocal;
             break;
         case 3:
-            return to_string(data[o].GolesLocal);
+            return to_string(informacion[o].goleslocales);
             break;
         case 4:
-            return to_string(data[o].GolesVisitante);
+            return to_string(informacion[o].golesvisitantes);
             break;
         case 5:
-            return data[o].EquipoVisitante;
+            return informacion[o].equipovisitante;
             break;
         case 6:
-            return data[o].Competicion;
+            return informacion[o].competicion;
             break;
         default:
             throw 666 - 2;
             break;
         }
     }
-    // fuckit
+    // Reenvia la ubicacion del ultimo partido agregado
     int last()
     {
-        return data.size() - 1;
+        return informacion.size() - 1;
     }
 
-    // no tendriamos que usar esta funcion directamente porque es un print en el objeto y tendriamos que hacer el print en main
+    // Imprime vectores guardados en el objecto si sus posiciones coinciden con los valores de la lista
     void printlista(vector<int> lista)
     {
-        // partidos todos
+        // If se ejecuta si no encuentra ningun partido
+        if (lista.size() == 0)
+        {
+            return;
+        }
+
         cout << "Partidos jugados: " << endl;
-        cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
+        cout << setw(25) << "jornada" << setw(8) << "\tFECHA" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
         for (int i = 0; i < lista.size(); i++)
         {
-            cout << setw(25) << data[lista[i]].Jornada << "\t"
-                 << setw(8) << data[lista[i]].Fecha.toString() << "\t"
-                 << setw(30) << data[lista[i]].EquipoLocal << "\t"
-                 << setw(30) << data[lista[i]].EquipoVisitante << "\t"
-                 << setw(8) << data[lista[i]].GolesLocal << "\t"
-                 << setw(10) << data[lista[i]].GolesVisitante << "\n";
+            cout << setw(25) << informacion[lista[i]].jornada << "\t"
+                 << setw(8) << informacion[lista[i]].fecha.toString() << "\t"
+                 << setw(30) << informacion[lista[i]].equipolocal << "\t"
+                 << setw(30) << informacion[lista[i]].equipovisitante << "\t"
+                 << setw(8) << informacion[lista[i]].goleslocales << "\t"
+                 << setw(10) << informacion[lista[i]].golesvisitantes << "\n";
         }
     }
     // para hacer print en main...
-    vector<partido> bringlista(vector<int> lista)
+    vector<PARTIDO> TraerPartidos(vector<int> lista)
     {
         // filtrar en main o otra funcion mas
-        vector<partido> truelista;
+        vector<PARTIDO> partidos;
         for (int i = 0; i < lista.size(); i++)
         {
-            truelista.push_back(data[lista[i]]);
+            partidos.push_back(informacion[lista[i]]);
         }
-        return truelista;
+        return partidos;
     }
 };
 // Funcion de hash basada en FNV-1
@@ -291,249 +300,261 @@ unsigned int customHashFunc(string clave)
     const unsigned int OFFSET_BASIS = 2166136261u;
 
     unsigned int hash = OFFSET_BASIS;
-    for (char c : clave)
+    for (char competencia : clave)
     {
         hash = hash * FNV_PRIME;
-        hash = hash ^ static_cast<unsigned int>(c);
+        hash = hash ^ static_cast<unsigned int>(competencia);
     }
     return hash;
 }
 
-class Stats
+// Clase que calcula las estadisticas de tantos partidos se manden a la funcion Ingresar(), a su vez guarda los nombres de los equipos y competencias
+class Estadisticas
 {
 private:
     unordered_set<string> competiciones;
     unordered_set<string> equipos;
-    HashMap<std::string, BestofCompetencia> statscompetencias;
-    HashMap<std::string, statsequipo> BigData;
+    HashMap<std::string, MEJORES_PARTIDOS> Estadisticascompetencias;
+    HashMap<std::string, ESTADISTICAS_EQUIPO> EstadisticasTodosLosEquipos;
     //[0] mejor competicion por cantidad de goles, [1] equipo con mas goles, [2] equipo con menos goles
     string Absoluto[3];
 
 public:
-    Stats();
-    ~Stats();
-    void Ingresar(partido &p, int pp);             // Se puede usar para cargar el partido desde cupholder
+    Estadisticas();
+    ~Estadisticas();
+    void Ingresar(PARTIDO &p, int pp);             // Se puede usar para cargar el PARTIDO desde cupholder
     void print(string equipo, string competencia); // No es final, solo debugging
     void llenado();
     void Calculofinal();
-    vector<int> partidos(string equipo, string competencia);
+    vector<int> PARTIDOs(string equipo, string competencia);
 };
 
-Stats::Stats() : statscompetencias(30, customHashFunc), BigData(1000, customHashFunc)
+Estadisticas::Estadisticas() : Estadisticascompetencias(30, customHashFunc), EstadisticasTodosLosEquipos(1000, customHashFunc)
 {
 }
-Stats::~Stats() {
+Estadisticas::~Estadisticas() {
 };
 
-void Stats::Calculofinal()
+void Estadisticas::Calculofinal()
 {
     cout << competiciones.size() << endl;
     cout << equipos.size() << endl;
 
     // Logica para peor y mejor equipo por cantidad de goles, mejorable...
-    string best, worst;
-    int cbest = 0, cbestest = 0, cworstest = 1000, cworst = 1000, cgoles = 0;
-    // Este for hace aprox 600 ejecuciones porque intenta buscar muchos stats
-    // De equipos que no jugaron en ciertas competencias. en 4k partidos hay
-    //~130 equipos y 5 competiciones pero solo ~148stats de equipos (la mayoria de equipos solo juega en una competicion)
-    for (const auto &c : competiciones)
+    string mejor, peor;
+    int cmejor = 0, cmejordetodos = 0, cpeordetodos = 1000, cpeor = 1000, cgoles = 0;
+    // Este for hace aprox 600 ejecuciones porque intenta buscar muchos Estadisticas
+    // De equipos que no jugaron en ciertas competencias. en 4k PARTIDOs hay
+    //~130 equipos y 5 competiciones pero solo ~148Estadisticas de equipos (la mayoria de equipos solo juega en una competicion)
+    for (const auto &competencia : competiciones)
     {
-        cbest = 0, cworst = 1000;
-        for (const auto &e : equipos)
+        cmejor = 0, cpeor = 1000;
+        for (const auto &equipo : equipos)
         {
             try
             {
-                statsequipo x = BigData.get(e + c);
-                if (cworst > x.cgoles + x.goles)
+                ESTADISTICAS_EQUIPO x = EstadisticasTodosLosEquipos.get(equipo + competencia);
+                if (cpeor > x.cgoles + x.goles)
                 {
-                    cworst = x.cgoles + x.goles;
-                    worst = e;
+                    cpeor = x.cgoles + x.goles;
+                    peor = equipo;
                 }
-                if (cbest < x.cgoles + x.goles)
+                if (cmejor < x.cgoles + x.goles)
                 {
-                    cbest = x.cgoles + x.goles;
-                    best = e;
+                    cmejor = x.cgoles + x.goles;
+                    mejor = equipo;
                 }
             }
             catch (int)
             {
-                // van a saltar muchos int porque cuando el hash no encuentre un partido tira int.
+                // van a saltar muchos int porque cuando el hash no encuentre un PARTIDO tira int.
                 // No se una formar mas facil de recorrer el hash sin modificar muchisimo la libreria...
             }
         }
-        BestofCompetencia y = statscompetencias.get(c);
-        y.bestteam = best;
-        y.worstteam = worst;
-        statscompetencias.put(c, y);
+        MEJORES_PARTIDOS y = Estadisticascompetencias.get(competencia);
+        y.mejorequipo = mejor;
+        y.peorequipo = peor;
+        Estadisticascompetencias.put(competencia, y);
         // Solo un sith se maneja en absolutos
-        if (cworstest > cworst)
+        if (cpeordetodos > cpeor)
         {
-            Absoluto[2] = worst;
-            cworstest = cworst;
+            Absoluto[2] = peor;
+            cpeordetodos = cpeor;
         }
-        if (cbest > cbestest)
+        if (cmejor > cmejordetodos)
         {
-            Absoluto[1] = best;
-            cbestest = cbest;
+            Absoluto[1] = mejor;
+            cmejordetodos = cmejor;
         }
         if (cgoles < y.goals)
         {
-            Absoluto[0] = c;
+            Absoluto[0] = competencia;
             cgoles = y.goals;
         }
     }
+    // Print para controlar, se debe eliminar de esta funcion y mover a otra
     cout << "Competicion con mas goles: " << Absoluto[0] << endl;
-    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << cbestest << endl;
-    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << cworstest << endl;
+    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << cmejordetodos << endl;
+    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << cpeordetodos << endl;
     cout << endl
          << "Equipos con mas y menos goles por competicion:" << endl;
-    for (const auto &c : competiciones)
+    for (const auto &competencia : competiciones)
     {
-        cout << "Competicion: " << c << endl;
-        cout << "   Mas goles: " << statscompetencias.get(c).bestteam << endl;
-        cout << "   Menos goles: " << statscompetencias.get(c).worstteam << endl
+        cout << "Competicion: " << competencia << endl;
+        cout << "   Mas goles: " << Estadisticascompetencias.get(competencia).mejorequipo << endl;
+        cout << "   Menos goles: " << Estadisticascompetencias.get(competencia).peorequipo << endl
              << endl;
     }
 }
 
-void Stats::Ingresar(partido &p, int pp)
+void Estadisticas::Ingresar(PARTIDO &p, int pp)
 {
-    competiciones.insert(p.Competicion);
-    equipos.insert(p.EquipoLocal);
-    equipos.insert(p.EquipoVisitante);
-    statsequipo temp;
+    competiciones.insert(p.competicion);
+    equipos.insert(p.equipolocal);
+    equipos.insert(p.equipovisitante);
+    ESTADISTICAS_EQUIPO temp;
     // Equipo Local
     try
     {
-        temp = BigData.get(p.EquipoLocal + p.Competicion);
-        if (temp.Fechas[0] < p.GolesLocal)
-            temp.MejorFecha = p.Fecha;
-        temp.Fechas[0] = p.GolesLocal;
-        if (temp.Fechas[1] > p.GolesLocal)
-            temp.PeorFecha = p.Fecha;
-        temp.Fechas[1] = p.GolesLocal;
-        temp.goles += p.GolesLocal;
-        temp.cgoles += p.GolesVisitante;
-        if (p.GolesLocal > p.GolesVisitante)
+        temp = EstadisticasTodosLosEquipos.get(p.equipolocal + p.competicion);
+        if (temp.fechas[0] < p.goleslocales)
+            temp.mejor_fecha = p.fecha;
+            temp.fechas[0] = p.goleslocales;
+        if (temp.fechas[1] > p.goleslocales)
+            temp.peor_fecha = p.fecha;
+            temp.fechas[1] = p.goleslocales;
+        temp.goles += p.goleslocales;
+        temp.cgoles += p.golesvisitantes;
+        if (p.goleslocales > p.golesvisitantes)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(pp); // Para llamar los partidos del equipo
-        BigData.put(p.EquipoLocal + p.Competicion, temp);
+        temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
+        EstadisticasTodosLosEquipos.put(p.equipolocal + p.competicion, temp);
     }
-    catch (int e)
+    catch (int equipos)
     {
-        statsequipo temp;
-        temp.MejorFecha = p.Fecha;
-        temp.Fechas[0] = p.GolesLocal;
-        temp.PeorFecha = p.Fecha;
-        temp.Fechas[1] = p.GolesLocal;
-        temp.goles += p.GolesLocal;
-        temp.cgoles += p.GolesVisitante;
-        if (p.GolesLocal > p.GolesVisitante)
+        ESTADISTICAS_EQUIPO temp;
+        temp.mejor_fecha = p.fecha;
+        temp.fechas[0] = p.goleslocales;
+        temp.peor_fecha = p.fecha;
+        temp.fechas[1] = p.goleslocales;
+        temp.goles += p.goleslocales;
+        temp.cgoles += p.golesvisitantes;
+        if (p.goleslocales > p.golesvisitantes)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(pp); // Para llamar los partidos del equipo
-        BigData.put(p.EquipoLocal + p.Competicion, temp);
+        temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
+        EstadisticasTodosLosEquipos.put(p.equipolocal + p.competicion, temp);
     }
 
     // Equipo Visitante
     try
     {
-        temp = BigData.get(p.EquipoVisitante + p.Competicion);
-        if (temp.Fechas[0] < p.GolesVisitante)
-            temp.MejorFecha = p.Fecha;
-        temp.Fechas[0] = p.GolesVisitante;
-        if (temp.Fechas[1] > p.GolesVisitante)
-            temp.PeorFecha = p.Fecha;
-        temp.Fechas[1] = p.GolesVisitante;
-        temp.goles += p.GolesVisitante;
-        temp.cgoles += p.GolesLocal;
-        if (p.GolesVisitante > p.GolesLocal)
+        temp = EstadisticasTodosLosEquipos.get(p.equipovisitante + p.competicion);
+        if (temp.fechas[0] < p.golesvisitantes)
+            temp.mejor_fecha = p.fecha;
+        temp.fechas[0] = p.golesvisitantes;
+        if (temp.fechas[1] > p.golesvisitantes)
+            temp.peor_fecha = p.fecha;
+        temp.fechas[1] = p.golesvisitantes;
+        temp.goles += p.golesvisitantes;
+        temp.cgoles += p.goleslocales;
+        if (p.golesvisitantes > p.goleslocales)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(pp); // Para llamar los partidos del equipo
-        BigData.put(p.EquipoVisitante + p.Competicion, temp);
+        temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
+        EstadisticasTodosLosEquipos.put(p.equipovisitante + p.competicion, temp);
     }
-    catch (int e)
+    catch (int equipos)
     {
-        statsequipo temp;
-        temp.MejorFecha = p.Fecha;
-        temp.Fechas[0] = p.GolesVisitante;
-        temp.PeorFecha = p.Fecha;
-        temp.Fechas[1] = p.GolesVisitante;
-        temp.goles += p.GolesVisitante;
-        temp.cgoles += p.GolesLocal;
-        if (p.GolesVisitante > p.GolesLocal)
+        ESTADISTICAS_EQUIPO temp;
+        temp.mejor_fecha = p.fecha;
+        temp.fechas[0] = p.golesvisitantes;
+        temp.peor_fecha = p.fecha;
+        temp.fechas[1] = p.golesvisitantes;
+        temp.goles += p.golesvisitantes;
+        temp.cgoles += p.goleslocales;
+        if (p.golesvisitantes > p.goleslocales)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
-        temp.lista.push_back(pp); // Para llamar los partidos del equipo
-        BigData.put(p.EquipoVisitante + p.Competicion, temp);
+        temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
+        EstadisticasTodosLosEquipos.put(p.equipovisitante + p.competicion, temp);
     }
 
     // Goles por competencia
     try
     {
-        BestofCompetencia x = statscompetencias.get(p.Competicion);
-        x.goals += p.GolesLocal + p.GolesVisitante;
-        statscompetencias.put(p.Competicion, x);
-        if ((p.GolesLocal + p.GolesVisitante) >= (x.partidos[4].GolesLocal + x.partidos[4].GolesVisitante))
+        MEJORES_PARTIDOS x = Estadisticascompetencias.get(p.competicion);
+        x.goals += p.goleslocales + p.golesvisitantes;
+        Estadisticascompetencias.put(p.competicion, x);
+        if ((p.goleslocales + p.golesvisitantes) >= (x.PARTIDOs[4].goleslocales + x.PARTIDOs[4].golesvisitantes))
         {
-            x.best(p);
+            x.mejor(p);
         }
-        statscompetencias.put(p.Competicion, x);
+        Estadisticascompetencias.put(p.competicion, x);
     }
-    catch (int e)
+    catch (int equipos)
     {
-        BestofCompetencia x;
-        x.goals += p.GolesLocal + p.GolesVisitante;
-        x.partidos[0] = p;
-        statscompetencias.put(p.Competicion, x);
+        MEJORES_PARTIDOS x;
+        x.goals += p.goleslocales + p.golesvisitantes;
+        x.PARTIDOs[0] = p;
+        Estadisticascompetencias.put(p.competicion, x);
     }
 }
 
-vector<int> Stats::partidos(string equipo, string competencia)
-{
-    return BigData.get(equipo + competencia).lista;
-}
-
-void Stats::print(string equipo, string competencia)
+vector<int> Estadisticas::PARTIDOs(string equipo, string competencia)
 {
     try
     {
-        BigData.get(equipo + competencia).print();
+        return EstadisticasTodosLosEquipos.get(equipo + competencia).lista;
     }
-    catch (int e)
+    catch (const int &equipos)
     {
-        cout << "Error: " << e << '\n';
-        if (e == 404)
+        vector<int> vacio;
+        return vacio;
+    }
+}
+
+// Imprime tanto las estadisticas del equipo en esa competencia como las estadisticas de la competencia ingresada
+void Estadisticas::print(string equipo, string competencia)
+{
+    try
+    {
+        EstadisticasTodosLosEquipos.get(equipo + competencia).print();
+    }
+    catch (int equipos)
+    {
+        cout << "\nError: " << equipos << '\n';
+        if (equipos == 404)
         {
             cout << "Equipo no encontrado en competicion ingresada";
         }
     }
     try
     {
-        statscompetencias.get(competencia).print(competencia);
+        Estadisticascompetencias.get(competencia).print(competencia);
     }
-    catch (int e)
+    catch (int equipos)
     {
-        cout << "Error: " << e << '\n';
-        if (e == 404)
+        cout << "\nError: " << equipos << '\n';
+        if (equipos == 404)
         {
             cout << "Competencia inexistente";
         }
     }
 }
 
-void Stats::llenado()
+// Funcion para debug, solamente imprime cuantas casillas estan ocupadas en la tabla
+void Estadisticas::llenado()
 { // Para saber si la tabla Hash es del tamaño correcto (143 de 10k xD), tenia razon...
-    cout << "Llenado de tabla golespc: " << statscompetencias.espacioRestante() << endl;
-    cout << "Llenado de tabla BigData: " << BigData.espacioRestante() << endl;
+    cout << "Llenado de tabla golespc: " << Estadisticascompetencias.espacioRestante() << endl;
+    cout << "Llenado de tabla EstadisticasTodosLosEquipos: " << EstadisticasTodosLosEquipos.espacioRestante() << endl;
 }

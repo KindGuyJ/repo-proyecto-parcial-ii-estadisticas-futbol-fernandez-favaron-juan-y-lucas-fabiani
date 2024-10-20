@@ -2,35 +2,35 @@
 #include <sstream> //para stream
 
 int main(){
-    dataclass cupholder;
+    ALMACEN almacen;
     string linea;
     ifstream archivo("Base_Datos_COMA.csv");
-    Stats allstats;
+    Estadisticas estadisticas_totales;
     getline(archivo,linea);
     
     int c=0;
     while (getline(archivo, linea)) {
         stringstream stream(linea);
-        // Jornada,Fecha,Equipo Local,Goles Local,Goles Visitante,Equipo Visitante,Competicion
-        partido carga;
+        // Carga del archivo por linea a un struct partido
+        PARTIDO carga;
         string temp;
-        getline(stream,carga.Jornada,',');
+        getline(stream,carga.jornada,',');
         getline(stream,temp,',');
-        carga.Fecha = temp;
-        getline(stream,carga.EquipoLocal,',');
+        carga.fecha = temp;
+        getline(stream,carga.equipolocal,',');
         getline(stream,temp,',');
-        carga.GolesLocal = stoi(temp);
+        carga.goleslocales = stoi(temp);
         getline(stream,temp,',');
-        carga.GolesVisitante = stoi(temp);
-        getline(stream,carga.EquipoVisitante,',');
-        getline(stream,carga.Competicion,',');
-        //Aca pasa la magia pero no vale mirar atras de la cortina :(
-        cupholder.add(carga);
-        allstats.Ingresar(carga,c);
-        c++; //se puede usar cupholder.last() pero esto deberia ser mas rapido que llamar a una funcion...    }
+        carga.golesvisitantes = stoi(temp);
+        getline(stream,carga.equipovisitante,',');
+        getline(stream,carga.competicion,',');
+        // Calculos
+        almacen.agregar(carga); 
+        estadisticas_totales.Ingresar(carga,c); //se puede usar almacen.last() en vez de c pero esto deberia ser mas rapido que llamar a una funcion
+        c++; 
     }
 
-    allstats.Calculofinal();
+    estadisticas_totales.Calculofinal();
     archivo.close();
 
     //Ejemplo de consulta
@@ -38,6 +38,6 @@ int main(){
     cout<<"Ingresar equipo,competencia a consultar"<<endl;
     getline(cin,a);
     getline(cin,b);
-    allstats.print(a,b);
-    cupholder.printlista(allstats.partidos(a,b));
+    estadisticas_totales.print(a,b);
+    almacen.printlista(estadisticas_totales.PARTIDOs(a,b));
 }
