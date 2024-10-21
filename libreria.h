@@ -74,7 +74,7 @@ struct PARTIDO
 
 struct MEJORES_PARTIDOS
 {
-    int goals;
+    int goals = 0;
     PARTIDO PARTIDOs[5];
     string mejorequipo;
     string peorequipo;
@@ -83,8 +83,8 @@ struct MEJORES_PARTIDOS
     void print(string competencia)
     {
         cout << endl
-             << "competicion: " << competencia << endl;
-        cout << setw(25) << "jornada" << setw(8) << "\tFECHA" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
+             << "Competicion: " << competencia << endl;
+        cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
         for (int i = 5; i > 0; i--)
         {
             cout << setw(25) << PARTIDOs[i - 1].jornada << "\t"
@@ -169,8 +169,8 @@ struct ESTADISTICAS_EQUIPO
         cout << "Goles del oponente: " << cgoles << endl;
         cout << "Goles a favor en promedio: " << static_cast<float>(goles) / partidos << endl;
         cout << "Goles del oponente en promedio: " << static_cast<float>(cgoles) / partidos << endl;
-        cout << "Mejor FECHA: " << mejor_fecha.toString() << endl;
-        cout << "Peor FECHA: " << peor_fecha.toString() << endl;
+        cout << "Mejor fecha: " << mejor_fecha.toString() << endl;
+        cout << "Peor fecha: " << peor_fecha.toString() << endl;
         cout << "Partidos: " << partidos << endl;
     }
 };
@@ -189,7 +189,7 @@ public:
     /// @brief
     /// @param o A cual de todos los vectores asignar
     /// @param x Nuevo string
-    /// @param i [0-6] 0-jornada; 1-FECHA; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
+    /// @param i [0-6] 0-jornada; 1-fecha; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
     void assign(int o, string x, int i)
     {
         switch (i)
@@ -222,7 +222,7 @@ public:
     }
     /// @brief
     /// @param o A cual vector leer
-    /// @param i [0-6] 0-jornada; 1-FECHA; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
+    /// @param i [0-6] 0-jornada; 1-fecha; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
     /// @return la informacion
     string get(int o, int i)
     {
@@ -342,60 +342,66 @@ void Estadisticas::Calculofinal()
 
     // Logica para peor y mejor equipo por cantidad de goles, mejorable...
     string mejor, peor;
-    int cmejor = 0, cmejordetodos = 0, cpeordetodos = 1000, cpeor = 1000, cgoles = 0;
-    // Este for hace aprox 600 ejecuciones porque intenta buscar muchos Estadisticas
-    // De equipos que no jugaron en ciertas competencias. en 4k PARTIDOs hay
-    //~130 equipos y 5 competiciones pero solo ~148Estadisticas de equipos (la mayoria de equipos solo juega en una competicion)
+    int cmejor = 0, cpeor = 1000, cgoles = 0;
+
+    // Mejores partidos por competencia
     for (const auto &competencia : competiciones)
     {
         cmejor = 0, cpeor = 1000;
         for (const auto &equipo : equipos)
         {
-            try
+            ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
+            if (px != nullptr)
             {
-                ESTADISTICAS_EQUIPO x = EstadisticasTodosLosEquipos.get(equipo + competencia);
-                if (cpeor > x.cgoles + x.goles)
+                ESTADISTICAS_EQUIPO x = *px;
+                if (cpeor > x.goles)
                 {
-                    cpeor = x.cgoles + x.goles;
+                    cpeor = x.goles;
                     peor = equipo;
                 }
-                if (cmejor < x.cgoles + x.goles)
+                if (cmejor < x.goles)
                 {
-                    cmejor = x.cgoles + x.goles;
+                    cmejor = x.goles;
                     mejor = equipo;
                 }
             }
-            catch (int)
-            {
-                // van a saltar muchos int porque cuando el hash no encuentre un PARTIDO tira int.
-                // No se una formar mas facil de recorrer el hash sin modificar muchisimo la libreria...
-            }
         }
-        MEJORES_PARTIDOS y = Estadisticascompetencias.get(competencia);
-        y.mejorequipo = mejor;
-        y.peorequipo = peor;
-        Estadisticascompetencias.put(competencia, y);
-        // Solo un sith se maneja en absolutos
-        if (cpeordetodos > cpeor)
-        {
-            Absoluto[2] = peor;
-            cpeordetodos = cpeor;
-        }
-        if (cmejor > cmejordetodos)
-        {
-            Absoluto[1] = mejor;
-            cmejordetodos = cmejor;
-        }
-        if (cgoles < y.goals)
+        MEJORES_PARTIDOS *y = Estadisticascompetencias.buscar(competencia);
+        y->mejorequipo = mejor;
+        y->peorequipo = peor;
+        // Competencia con mas goles:
+        if (cgoles < y->goals)
         {
             Absoluto[0] = competencia;
-            cgoles = y.goals;
+            cgoles = y->goals;
+        }
+
+        // Equipo con mas y menos goles de todas las competencias
+        int co=0;cmejor = 0; cpeor = 1000;
+        for (const auto &e : equipos)
+        {
+            co=0;
+            for (const auto &c : competiciones)
+            {
+                ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(e+c);
+                if (px!=nullptr){
+                    co += px->goles;
+                }
+            }
+            if (co<cpeor){
+                cpeor = co;
+                Absoluto[2] = e;
+            }
+            if (co>cmejor){
+                cmejor = co;
+                Absoluto[1] = e;
+            }
         }
     }
     // Print para controlar, se debe eliminar de esta funcion y mover a otra
     cout << "Competicion con mas goles: " << Absoluto[0] << endl;
-    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << cmejordetodos << endl;
-    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << cpeordetodos << endl;
+    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << cmejor << endl;
+    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << cpeor << endl;
     cout << endl
          << "Equipos con mas y menos goles por competicion:" << endl;
     for (const auto &competencia : competiciones)
@@ -405,6 +411,7 @@ void Estadisticas::Calculofinal()
         cout << "   Menos goles: " << Estadisticascompetencias.get(competencia).peorequipo << endl
              << endl;
     }
+    return;
 }
 
 void Estadisticas::Ingresar(PARTIDO &p, const int &pp)
@@ -501,6 +508,7 @@ void Estadisticas::Ingresar(PARTIDO &p, const int &pp)
     MEJORES_PARTIDOS *px = Estadisticascompetencias.buscar(p.competicion), x;
     if (px != nullptr)
     {
+        x = *px;
         x.goals += p.goleslocales + p.golesvisitantes;
         if ((p.goleslocales + p.golesvisitantes) >= (x.PARTIDOs[4].goleslocales + x.PARTIDOs[4].golesvisitantes))
         {

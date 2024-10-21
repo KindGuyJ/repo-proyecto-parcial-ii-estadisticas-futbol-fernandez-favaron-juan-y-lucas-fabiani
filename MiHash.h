@@ -172,7 +172,7 @@ T* HashMap<K, T>::buscar(const K& clave) {
 
     while (tabla[pos] != NULL) { //Con una tabla grande no deberiamos perder mucho tiempo con openhashing
         if (tabla[pos]->getClave() == clave) {
-            return &(tabla[pos]->getValor());
+            return &(tabla[pos]->getValorReal());
         }
         pos = (pos + 1) % tamanio;
 
