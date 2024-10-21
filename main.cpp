@@ -8,7 +8,7 @@ int main(){
     getline(archivo,linea);
     
 
-    int c=0;
+    int idx=0;
     while (getline(archivo, linea)) {
         // Carga del archivo por linea a un struct partido
         stringstream stream(linea);
@@ -26,8 +26,8 @@ int main(){
         getline(stream,carga.competicion,',');
         // Calculos
         almacen.agregar(carga); 
-        estadisticas_totales.Ingresar(carga,c); //se puede usar almacen.last() en vez de c pero esto deberia ser mas rapido que llamar a una funcion
-        c++; 
+        estadisticas_totales.Ingresar(carga,idx); //se puede usar almacen.last() en vez de c pero esto deberia ser mas rapido que llamar a una funcion
+        idx++; 
     }
 
     estadisticas_totales.Calculofinal();
