@@ -7,7 +7,6 @@ int main(){
     Estadisticas estadisticas_totales;
     getline(archivo,linea);
     
-
     int idx=0;
     while (getline(archivo, linea)) {
         // Carga del archivo por linea a un struct partido
