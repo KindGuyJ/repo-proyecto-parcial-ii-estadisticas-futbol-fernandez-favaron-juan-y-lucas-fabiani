@@ -420,11 +420,15 @@ void Estadisticas::Ingresar(PARTIDO &p, const int &pp)
     {
         temp = *ptemp;
         if (temp.fechas[0] < p.goleslocales)
+        {
             temp.mejor_fecha = p.fecha;
-        temp.fechas[0] = p.goleslocales;
+            temp.fechas[0] = p.goleslocales;
+        }
         if (temp.fechas[1] > p.goleslocales)
+        {
             temp.peor_fecha = p.fecha;
-        temp.fechas[1] = p.goleslocales;
+            temp.fechas[1] = p.goleslocales;
+        }
         temp.goles += p.goleslocales;
         temp.cgoles += p.golesvisitantes;
         if (p.goleslocales > p.golesvisitantes)
@@ -457,11 +461,15 @@ void Estadisticas::Ingresar(PARTIDO &p, const int &pp)
     {
         temp = *ptemp;
         if (temp.fechas[0] < p.golesvisitantes)
+        {
             temp.mejor_fecha = p.fecha;
-        temp.fechas[0] = p.golesvisitantes;
+            temp.fechas[0] = p.golesvisitantes;
+        }
         if (temp.fechas[1] > p.golesvisitantes)
+        {
             temp.peor_fecha = p.fecha;
-        temp.fechas[1] = p.golesvisitantes;
+            temp.fechas[1] = p.golesvisitantes;
+        }
         temp.goles += p.golesvisitantes;
         temp.cgoles += p.goleslocales;
         if (p.golesvisitantes > p.goleslocales)
