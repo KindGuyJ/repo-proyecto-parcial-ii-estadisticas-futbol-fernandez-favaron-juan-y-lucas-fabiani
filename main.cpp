@@ -1,5 +1,4 @@
 #include"libreria.h"
-#include <sstream> //para stream
 
 int main(){
     ALMACEN almacen;
@@ -8,10 +7,11 @@ int main(){
     Estadisticas estadisticas_totales;
     getline(archivo,linea);
     
+
     int c=0;
     while (getline(archivo, linea)) {
-        stringstream stream(linea);
         // Carga del archivo por linea a un struct partido
+        stringstream stream(linea);
         PARTIDO carga;
         string temp;
         getline(stream,carga.jornada,',');

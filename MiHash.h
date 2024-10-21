@@ -23,6 +23,7 @@ public:
   bool esVacio();
   void print();
   unsigned int espacioRestante();
+  T* buscar(const K& clave);
 };
 
 template <class K, class T>
@@ -161,5 +162,25 @@ unsigned int HashMap<K, T>::espacioRestante()
     }
   }
   return x;
+}
+
+template <class K, class T>
+T* HashMap<K, T>::buscar(const K& clave) {
+    unsigned int pos = hashFuncP(clave) % tamanio; 
+    unsigned int originalPos = pos; //Por si damos toda la vuelta
+    bool noinicial = false;
+
+    while (tabla[pos] != NULL) { //Con una tabla grande no deberiamos perder mucho tiempo con openhashing
+        if (tabla[pos]->getClave() == clave) {
+            return &(tabla[pos]->getValor());
+        }
+        pos = (pos + 1) % tamanio;
+
+        if (pos == originalPos && noinicial) {
+            break;
+        }
+        noinicial = true;
+    }
+    return nullptr;
 }
 #endif // U05_HASH_HASHMAP_HASHMAP_H_
