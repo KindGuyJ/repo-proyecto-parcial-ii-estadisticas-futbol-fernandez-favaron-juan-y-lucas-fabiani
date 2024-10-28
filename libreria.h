@@ -542,29 +542,23 @@ vector<int> Estadisticas::PARTIDOs(string equipo, string competencia)
 // Imprime tanto las estadisticas del equipo en esa competencia como las estadisticas de la competencia ingresada
 void Estadisticas::print(string equipo, string competencia)
 {
-    try
+    if (EstadisticasTodosLosEquipos.buscar(equipo + competencia))
     {
         EstadisticasTodosLosEquipos.get(equipo + competencia).print();
     }
-    catch (int equipos)
+    else
     {
-        cout << "\nError: " << equipos << '\n';
-        if (equipos == 404)
-        {
-            cout << "Equipo no encontrado en competicion ingresada";
-        }
+        cout << "\nError: 404\n";
+        cout << "Equipo no encontrado en competicion ingresada";
     }
-    try
+    if (Estadisticascompetencias.buscar(competencia))
     {
         Estadisticascompetencias.get(competencia).print(competencia);
     }
-    catch (int equipos)
+    else
     {
-        cout << "\nError: " << equipos << '\n';
-        if (equipos == 404)
-        {
-            cout << "Competencia inexistente";
-        }
+        cout << "\nError: 404\n";
+        cout << "Competencia inexistente";
     }
 }
 
