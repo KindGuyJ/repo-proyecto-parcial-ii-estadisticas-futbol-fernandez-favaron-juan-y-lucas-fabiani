@@ -125,7 +125,17 @@ bool HashMap<K, T>::esVacio()
 template <class K, class T>
 unsigned int HashMap<K, T>::hashFunc(K clave)
 {
-  return (unsigned int)clave;
+    const unsigned int FNV_PRIME = 16777619u;
+    const unsigned int OFFSET_BASIS = 2166136261u;
+
+    unsigned int hash = OFFSET_BASIS;
+    for (char competencia : clave)
+    {
+        hash = hash * FNV_PRIME;
+        hash = hash ^ static_cast<unsigned int>(competencia);
+    }
+    return hash;
+}
 }
 
 template <class K, class T>

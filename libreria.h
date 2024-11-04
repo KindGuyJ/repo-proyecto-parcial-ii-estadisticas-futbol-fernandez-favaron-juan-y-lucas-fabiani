@@ -1,3 +1,6 @@
+#ifndef LIBRERIA_H
+#define LIBRERIA_H
+
 #include <iostream>
 #include <vector> //Lista optimizada
 #include <fstream>
@@ -88,15 +91,25 @@ struct MEJORES_PARTIDOS
              << "Mejor equipo por goles convertidos: "<<mejorequipo<<endl
              << "Peor equipo por goles convertidos: "<<peorequipo<<endl<<endl;
 
-        cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
+        cout << setw(20) << "Jornada"
+             << setw(15) << "Fecha" 
+             << setw(20) << "Equipo Local" 
+             << setw(10) << "Goles"
+             << setw(20) << "Equipo Visitante"
+             << endl;
+
+        cout << setfill('-') << setw(70) << "" << setfill(' ') << endl;
+
         for (int i = 5; i > 0; i--)
         {
-            cout << setw(25) << PARTIDOs[i - 1].jornada << "\t"
-                 << setw(8) << PARTIDOs[i - 1].fecha.toString() << "\t"
-                 << setw(30) << PARTIDOs[i - 1].equipolocal << "\t"
-                 << setw(30) << PARTIDOs[i - 1].equipovisitante << "\t"
-                 << setw(8) << PARTIDOs[i - 1].goleslocales << "\t"
-                 << setw(10) << PARTIDOs[i - 1].golesvisitantes << "\n";
+            cout << setw(20) << right << PARTIDOs[i - 1].jornada
+                 << setw(15) << right << PARTIDOs[i - 1].fecha.toString()
+                 << setw(20) << right << PARTIDOs[i - 1].equipolocal
+                 << setw(4) << right << PARTIDOs[i - 1].goleslocales
+                 << setw(2) << "  "
+                 << setw(4) << left << PARTIDOs[i - 1].golesvisitantes
+                 << setw(20) << left <<PARTIDOs[i - 1].equipovisitante << "\n";
+                 
         }
     }
 
@@ -178,71 +191,9 @@ struct ESTADISTICAS_EQUIPO
         cout << "Partidos: " << partidos << endl;
     }
 };
-// Clase para almacenar una lista de partidos y funciones para modificar los mismos.
-// Capaz cambiar el asignar y get para que den el objeto pero bueno no los use para nada todavia.
-class ALMACEN
-{
-private:
-    vector<PARTIDO> informacion;
 
-public:
-    void agregar(PARTIDO s)
-    {
-        informacion.push_back(s);
-    }
-    // Reenvia la ubicacion del ultimo partido agregado
-    int last()
-    {
-        return informacion.size() - 1;
-    }
 
-    // Imprime vectores guardados en el objecto si sus posiciones coinciden con los valores de la lista
-    void printlista(vector<int> lista)
-    {
-        // If se ejecuta si no encuentra ningun partido
-        if (lista.size() == 0)
-        {
-            return;
-        }
 
-        cout << "Partidos jugados: " << endl;
-        cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
-        for (int i = 0; i < lista.size(); i++)
-        {
-            cout << setw(25) << informacion[lista[i]].jornada << "\t"
-                 << setw(8) << informacion[lista[i]].fecha.toString() << "\t"
-                 << setw(30) << informacion[lista[i]].equipolocal << "\t"
-                 << setw(30) << informacion[lista[i]].equipovisitante << "\t"
-                 << setw(8) << informacion[lista[i]].goleslocales << "\t"
-                 << setw(10) << informacion[lista[i]].golesvisitantes << "\n";
-        }
-    }
-    // para hacer print en main...
-    vector<PARTIDO> TraerPartidos(vector<int> lista)
-    {
-        // filtrar en main o otra funcion mas
-        vector<PARTIDO> partidos;
-        for (int i = 0; i < lista.size(); i++)
-        {
-            partidos.push_back(informacion[lista[i]]);
-        }
-        return partidos;
-    }
-};
-// Funcion de hash basada en FNV-1
-unsigned int customHashFunc(string clave)
-{
-    const unsigned int FNV_PRIME = 16777619u;
-    const unsigned int OFFSET_BASIS = 2166136261u;
-
-    unsigned int hash = OFFSET_BASIS;
-    for (char competencia : clave)
-    {
-        hash = hash * FNV_PRIME;
-        hash = hash ^ static_cast<unsigned int>(competencia);
-    }
-    return hash;
-}
 
 // Clase que calcula las estadisticas de tantos partidos se manden a la funcion Ingresar(), a su vez guarda los nombres de los equipos y competencias
 class Estadisticas
@@ -493,14 +444,13 @@ bool Estadisticas::EquipoyCompetenciaExiste(string hash)
 }
 
 void Estadisticas::printcompetencia(string competencia){
-        if (Estadisticascompetencias.buscar(competencia))
+    if (Estadisticascompetencias.buscar(competencia))
     {
         Estadisticascompetencias.get(competencia).print(competencia);
     }
     else
     {
-        cout << "\nError: 404\n";
-        cout << "Competencia inexistente\n";
+        cout << "Error 404: Competencia inexistente" << endl;
     }
 }
 // Imprime tanto las estadisticas del equipo en esa competencia como las estadisticas de la competencia ingresada
@@ -523,3 +473,5 @@ void Estadisticas::llenado()
     cout << "Llenado de tabla golespc: " << Estadisticascompetencias.espacioRestante() << endl;
     cout << "Llenado de tabla EstadisticasTodosLosEquipos: " << EstadisticasTodosLosEquipos.espacioRestante() << endl;
 }
+
+#endif
