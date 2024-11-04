@@ -36,8 +36,8 @@ void modificarRegistro(int idModificar, const Partido& nuevoRegistro) {
     while (getline(archivo, linea)) {
         if (idx == idModificar) { // Modifica el registro especificado
             temp << nuevoRegistro.jornada << "," << nuevoRegistro.fecha.toString() << ","
-                 << nuevoRegistro.equipolocal << "," << nuevoRegistro.goleslocales << ","
-                 << nuevoRegistro.golesvisitantes << "," << nuevoRegistro.equipovisitante << ","
+                 << nuevoRegistro.equipoLocal << "," << nuevoRegistro.golesLocal << ","
+                 << nuevoRegistro.golesVisita << "," << nuevoRegistro.equipoVisita << ","
                  << nuevoRegistro.competicion << endl;
         } else {
             temp << linea << endl; // Copia el resto de las líneas sin cambios
@@ -55,8 +55,8 @@ void modificarRegistro(int idModificar, const Partido& nuevoRegistro) {
 void agregarRegistro(const Partido& nuevoRegistro) {
     ofstream archivo(archivoOg, ios::app); // Abrir en modo de adición
     archivo << nuevoRegistro.jornada << "," << nuevoRegistro.fecha.toString() << ","
-            << nuevoRegistro.equipolocal << "," << nuevoRegistro.goleslocales << ","
-            << nuevoRegistro.golesvisitantes << "," << nuevoRegistro.equipovisitante << ","
+            << nuevoRegistro.equipoLocal << "," << nuevoRegistro.golesLocal << ","
+            << nuevoRegistro.golesVisita << "," << nuevoRegistro.equipoVisita << ","
             << nuevoRegistro.competicion << endl;
     archivo.close();
     cout << "Registro agregado correctamente." << endl;

@@ -1,6 +1,7 @@
 #include "libreria.h"
 #include "csv.h"
 #include <regex> // para verificar DD/MM/YYYY
+#include <chrono>
 
 using namespace std;
 
@@ -27,6 +28,28 @@ vector<Partido> traerPartidos(vector<int> lista)
     return nuevo;
 }
 
+void limpiarConsola() {
+#ifdef _WIN32
+    // Comando para limpiar la consola en Windows
+    system("cls");
+#else
+    // Comando para limpiar la consola en Linux y otros sistemas Unix
+    system("clear");
+#endif
+}
+
+template <typename Func, typename... Args>
+void tiempoDeEjecucion(const string& nombreFuncion, Func funcion, Args &&...args)
+{
+    auto inicio = std::chrono::high_resolution_clock::now();
+    funcion(forward<Args>(args)...); // Llama a la función con los argumentos
+    auto fin = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duracion = fin - inicio;
+    std::cout << endl
+              << "Funcion: " << nombreFuncion << endl
+              << "Tiempo de ejecución: " << duracion.count() << " ms" << std::endl;
+}
+
 void mostrarMenu()
 {
     cout << "===============================" << endl;
@@ -45,6 +68,7 @@ void mostrarMenu()
     cout << "11. Comparar rendimiento general entre dos equipos" << endl;
     cout << "12. Comparar rendimiento particular entre dos equipos (enfrentamientos directos)" << endl;
     cout << "13. Filtrar equipos por umbral de goles promedio por partido" << endl;
+    cout << "14. Listar equipos y competencias" << endl;
     cout << "0. Salir" << endl;
     cout << "===============================" << endl;
     cout << "Seleccione una opción: ";
@@ -69,37 +93,36 @@ void cargarArchivo()
         getline(stream, partido.jornada, ',');
         getline(stream, temp, ',');
         partido.fecha = temp;
-        getline(stream, partido.equipolocal, ',');
+        getline(stream, partido.equipoLocal, ',');
         getline(stream, temp, ',');
-        partido.goleslocales = stoi(temp);
+        partido.golesLocal = stoi(temp);
         getline(stream, temp, ',');
-        partido.golesvisitantes = stoi(temp);
-        getline(stream, partido.equipovisitante, ',');
+        partido.golesVisita = stoi(temp);
+        getline(stream, partido.equipoVisita, ',');
         getline(stream, partido.competicion, ',');
 
         // Calculos
         partidos.push_back(partido);
-        estadisticas_totales.Ingresar(partido, idx); // se puede usar .last() en vez de idx pero esto deberia ser mas rapido que llamar a una funcion
+        estadisticas_totales.ingresar(partido, idx); // se puede usar .last() en vez de idx pero esto deberia ser mas rapido que llamar a una funcion
         idx++;
     }
 
-    estadisticas_totales.Calculofinal();
+    estadisticas_totales.calculofinal();
     archivo.close();
 }
 
 void EquipoValido(string &op1, string &op2, string &op3)
 {
     do
-    {   
-        cout << "Ingresar: [(nombre del equipo) y (nombre de la competencia)] a eliminar." << endl;
+    {
         getline(cin, op1);
-        size_t pos = op1.find(" y ");
+        size_t pos = op1.find(" en ");
         if (pos != string::npos)
         {
             // Extraer el nombre del equipo y de la competencia
             op2 = op1.substr(0, pos);
-            op3 = op1.substr(pos + 3); // `+ 3` para saltar " y "
-            if (estadisticas_totales.EquipoyCompetenciaExiste(op2 + op3))
+            op3 = op1.substr(pos + 4); // `+ 4` para saltar " y "
+            if (estadisticas_totales.equipoYCompetenciaExiste(op2 + op3))
             {
                 return;
             }
@@ -122,7 +145,7 @@ int ElegirPartido(string &op1, string &op2, string &op3)
     vector<Partido> eleccion = traerPartidos(estadisticas_totales.getPartidosPor(op2, op3));
     cout << "Ingrese el numero del partido que desee modificar/eliminar:\n";
     eleccion[0].printHeaders();
-    for (int i=0; i < eleccion.size(); i++)
+    for (int i = 0; i < eleccion.size(); i++)
     {
         cout << i << " - ";
         eleccion[i].printRow();
@@ -201,10 +224,10 @@ Partido validarExistente(Partido nuevo)
             nuevo.jornada = novacia("Ingrese una jornada: ");
             break;
         case 2:
-            nuevo.equipolocal = novacia("Ingrese el equipo local: ");
+            nuevo.equipoLocal = novacia("Ingrese el equipo local: ");
             break;
         case 3:
-            nuevo.equipovisitante = novacia("Ingrese el equipo visitante: ");
+            nuevo.equipoVisita = novacia("Ingrese el equipo visitante: ");
             break;
         case 4:
             while (true)
@@ -212,7 +235,7 @@ Partido validarExistente(Partido nuevo)
                 input = novacia("Ingrese los goles del equipo local: ");
                 if (input.size() > 0 && stoi(input) > -1)
                 {
-                    nuevo.goleslocales = stoi(input);
+                    nuevo.golesLocal = stoi(input);
                     break;
                 }
                 else
@@ -227,7 +250,7 @@ Partido validarExistente(Partido nuevo)
                 input = novacia("Ingrese los goles del equipo visitante: ");
                 if (input.size() > 0 && stoi(input) > -1)
                 {
-                    nuevo.golesvisitantes = stoi(input);
+                    nuevo.golesVisita = stoi(input);
                     break;
                 }
                 else
@@ -274,8 +297,8 @@ Partido validar()
     string input;
 
     nuevo.jornada = novacia("Ingrese una jornada: ");
-    nuevo.equipolocal = novacia("Ingrese el equipo local: ");
-    nuevo.equipovisitante = novacia("Ingrese el equipo visitante: ");
+    nuevo.equipoLocal = novacia("Ingrese el equipo local: ");
+    nuevo.equipoVisita = novacia("Ingrese el equipo visitante: ");
 
     // Validación de goles del equipo local
     while (true)
@@ -283,7 +306,7 @@ Partido validar()
         input = novacia("Ingrese los goles del equipo local: ");
         if (input.size() > 0 && stoi(input) > -1)
         {
-            nuevo.goleslocales = stoi(input);
+            nuevo.golesLocal = stoi(input);
             break;
         }
         else
@@ -298,7 +321,7 @@ Partido validar()
         input = novacia("Ingrese los goles del equipo visitante: ");
         if (input.size() > 0 && stoi(input) > -1)
         {
-            nuevo.golesvisitantes = stoi(input);
+            nuevo.golesVisita = stoi(input);
             break;
         }
         else
@@ -329,7 +352,7 @@ Partido validar()
 
 int main()
 {
-    cargarArchivo();
+    tiempoDeEjecucion("Carga de Archivos", cargarArchivo);
     string op1, op2, op3, nombreEquipo;
 
     int opcion;
@@ -342,35 +365,35 @@ int main()
         switch (opcion)
         {
         case 1:
-            cout << "Ingrese el nombre de la competencia que desea consultar:\n";
-            getline(cin, op1);
-            estadisticas_totales.printcompetencia(op1);
+        {
+            estadisticas_totales.listarCompetencias();
+            string nombre = input("\nIngrese el nombre de la competencia que desea consultar: ");
+            estadisticas_totales.printcompetencia(nombre);
             break;
+        }
         case 2:
             cout << "Imprimiendo todas las competencias: \n";
             estadisticas_totales.printtodascompetencias();
             break;
 
         case 3:
-            cout << "Ingresar: [(nombre del equipo) y (nombre de la competencia)] a consultar." << endl;
-            getline(cin, op1);
+            cout<<"Ingresar <nombre del equipo> "" en "" <nombre de la competencia>: \n";
             EquipoValido(op1, op2, op3);
             estadisticas_totales.print(op2, op3);
             break;
 
         case 4:
-            cout << "Ingresar: [(nombre del equipo) y (nombre de la competencia)] a consultar." << endl;
-            getline(cin, op1);
+            cout<<"Ingresar <nombre del equipo> "" en "" <nombre de la competencia> a consultar: \n";
             EquipoValido(op1, op2, op3);
             printlista(estadisticas_totales.getPartidosPor(op2, op3));
             break;
 
         case 5:
-            estadisticas_totales.MasGolesCompeticion();
+            estadisticas_totales.masGolesCompeticion();
             break;
 
         case 6:
-            estadisticas_totales.MejorYPeorEquipo();
+            estadisticas_totales.mejorYPeorEquipo();
             break;
 
         case 7:
@@ -397,12 +420,17 @@ int main()
             string equipo = input("Equipo: ");
             cout << "Ingresa las dos fechas (DD/MM/YYYY): " << endl;
             string fecha = input("Desde: ");
-            cout << fecha << endl;
+            while(!esFechaValida(fecha)){
+                        string fecha = input("Fecha 'desde' invalida, ingrese nuevamente: ");
+            }
             FECHA desde(fecha);
             fecha = input("Hasta: ");
+            while(!esFechaValida(fecha)){
+                string fecha = input("Fecha 'hasta' invalida, ingrese nuevamente: ");
+            }
             FECHA hasta(fecha);
 
-            unordered_set comp = estadisticas_totales.CualesCompetencias();
+            unordered_set<string> comp = estadisticas_totales.getCompeticiones();
             for (const auto &competencia : comp)
             {
                 cout << "Competencia: " << competencia << endl;
@@ -423,11 +451,11 @@ int main()
         {
             string equipo1 = input("Equipo 1: "),
                    equipo2 = input("Equipo 2: ");
-            unordered_set comp = estadisticas_totales.CualesCompetencias();
+            unordered_set<string> comp = estadisticas_totales.getCompeticiones();
             for (const auto &competencia : comp)
             {
-                estadisticas_totales.Goles(equipo1, competencia);
-                estadisticas_totales.Goles(equipo2, competencia);
+                estadisticas_totales.goles(equipo1, competencia);
+                estadisticas_totales.goles(equipo2, competencia);
             }
         }
         break;
@@ -444,10 +472,10 @@ int main()
 
             for (const Partido &partido : partidos)
             {
-                string local = partido.equipolocal,
-                       visita = partido.equipovisitante;
-                int goleslocal = partido.goleslocales,
-                    golesvisita = partido.golesvisitantes;
+                string local = partido.equipoLocal,
+                       visita = partido.equipoVisita;
+                int goleslocal = partido.golesLocal,
+                    golesvisita = partido.golesVisita;
 
                 if (local == equipo1 && visita == equipo2)
                 {
@@ -482,9 +510,9 @@ int main()
                     }
                 }
             }
-            cout << "Partidos entre ellos: " << contras<<endl;
-            cout << "Partido empatados: " << empates<<endl;
-            cout << "Equipo con mas victorias " << ((victorias1 > victorias2) ? equipo1 : equipo2)<<endl;
+            cout << "Partidos entre ellos: " << contras << endl;
+            cout << "Partido empatados: " << empates << endl;
+            cout << "Equipo con mas victorias " << ((victorias1 > victorias2) ? equipo1 : equipo2) << endl;
             cout << endl;
         }
         break;
@@ -492,16 +520,22 @@ int main()
         case 13:
         {
             int umbral;
-            cout<<"Ingrese el umbral: \n";
-            cin>>umbral;
+            cout << "Ingrese el umbral: \n";
+            cin >> umbral;
             cin.ignore();
             bool esMaximo = (input("Como maximo (M) o minimo (otra cosa)? ") == "M") ? true : false;
             estadisticas_totales.printEstadisticasEquipos(umbral, esMaximo);
         }
         break;
 
+        case 14:
+            estadisticas_totales.listarCompetencias();
+            estadisticas_totales.listarEquipos();
+            break;
+        
         case 0:
             cout << "Saliendo..." << endl;
+            return 0;
             break;
 
         default:
@@ -513,10 +547,13 @@ int main()
         string r;
         cout << "Continuar? (s/n) ";
         getline(cin, r);
-        if (r == "si" || r == "s" || r == "")
+        if (r == "si" || r == "s" || r == "") {
+            limpiarConsola();
             continue;
+        }
         else if (r == "no" || r == "n")
             break;
+        
 
     } while (opcion != 0);
 

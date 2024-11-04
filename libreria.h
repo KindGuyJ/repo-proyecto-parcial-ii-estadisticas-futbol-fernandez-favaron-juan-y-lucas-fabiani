@@ -83,10 +83,10 @@ struct Partido
 {
     string jornada = "";
     FECHA fecha;
-    string equipolocal = "";
-    int goleslocales = 0;
-    int golesvisitantes = 0;
-    string equipovisitante = "";
+    string equipoLocal = "";
+    int golesLocal = 0;
+    int golesVisita = 0;
+    string equipoVisita = "";
     string competicion = "";
 
     static void printHeaders()
@@ -104,15 +104,15 @@ struct Partido
     {
         cout << setw(20) << right << jornada
              << setw(15) << right << fecha.toString()
-             << setw(20) << right << equipolocal
-             << setw(4) << right << goleslocales
+             << setw(20) << right << equipoLocal
+             << setw(4) << right << golesLocal
              << setw(2) << "  "
-             << setw(4) << left << golesvisitantes
-             << setw(20) << left << equipovisitante << "\n";
+             << setw(4) << left << golesVisita
+             << setw(20) << left << equipoVisita << "\n";
     }
 };
 
-struct MEJORES_PARTIDOS
+struct MejoresPartidos
 {
     int goals = 0;
     Partido partidos[5];
@@ -139,7 +139,7 @@ struct MEJORES_PARTIDOS
     {
         for (int i = 0; i < 5; i++)
         {
-            if ((x.goleslocales + x.golesvisitantes) > (partidos[i].goleslocales + partidos[i].golesvisitantes))
+            if ((x.golesLocal + x.golesVisita) > (partidos[i].golesLocal + partidos[i].golesVisita))
             {
                 Partido t = partidos[i];
                 partidos[i] = x;
@@ -153,7 +153,7 @@ struct MEJORES_PARTIDOS
             }
         }
         // si los 5 partidos tienen los mismos goles se ejecuta esto, que no es lindo pero simple
-        if ((x.goleslocales + x.golesvisitantes) == (partidos[0].goleslocales + partidos[0].golesvisitantes))
+        if ((x.golesLocal + x.golesVisita) == (partidos[0].golesLocal + partidos[0].golesVisita))
         {
             // Ordeno los 5 que ya estaban por FECHA
             for (int i = 0; i < 5; i++)
@@ -188,7 +188,7 @@ struct MEJORES_PARTIDOS
 };
 
 // Struct para guardar los mejores partidos de una competición.
-struct ESTADISTICAS_EQUIPO
+struct EstadisticasEquipo
 {
     int win = 0;
     int lost = 0;
@@ -219,48 +219,79 @@ struct ESTADISTICAS_EQUIPO
     }
 };
 
-// Clase que calcula las estadisticas de tantos partidos se manden a la funcion Ingresar(), a su vez guarda los nombres de los equipos y competencias
+// Clase que calcula las estadisticas de tantos partidos se manden a la funcion ingresar(), a su vez guarda los nombres de los equipos y competencias
 class Estadisticas
 {
 private:
     unordered_set<string> competiciones;
     unordered_set<string> equipos;
-    HashMap<std::string, MEJORES_PARTIDOS> Estadisticascompetencias;
-    HashMap<std::string, ESTADISTICAS_EQUIPO> EstadisticasTodosLosEquipos;
+    
+    HashMap<std::string, MejoresPartidos> Estadisticascompetencias;
+    HashMap<std::string, EstadisticasEquipo> EstadisticasTodosLosEquipos;
     //[0] mejor competicion por cantidad de goles, [1] equipo con mas goles, [2] equipo con menos goles
     string Absoluto[3];
 
 public:
+    
     Estadisticas();
     ~Estadisticas();
-    void Ingresar(Partido &p, const int &pp);      // Se puede usar para cargar el Partido desde cupholder
+    void ingresar(Partido &p, const int &pp);      // Se puede usar para cargar el Partido desde cupholder
     void print(string equipo, string competencia); // No es final, solo debugging
     void llenado();
-    void Calculofinal();
-    void MejorYPeorEquipo();
+    void calculofinal();
+    void mejorYPeorEquipo();
     vector<int> getPartidosPor(string equipo, string competencia);
     void printcompetencia(string competencia);
     void printtodascompetencias();
-    void MasGolesCompeticion();
-    bool EquipoyCompetenciaExiste(string hash);
-    unordered_set<string> CualesCompetencias();
+    void listarCompetencias();
+    void listarEquipos();
+    void masGolesCompeticion();
+    unordered_set<string> getCompeticiones();
+    bool equipoYCompetenciaExiste(string hash);
     void printEstadisticasEquipos(int umbral, bool esMax);
-    void Goles(string equipo, string competencia);
+    void goles(string equipo, string competencia);
 };
 
+
+void Estadisticas::listarCompetencias() {
+    cout << "COMPETENCIAS: " << endl;
+    for (const auto& comp : competiciones) {
+        cout << "   - " << comp << endl;
+    }
+    cout << endl;
+}
+
+unordered_set<string> Estadisticas::getCompeticiones() {
+    return competiciones;
+}
+
+void Estadisticas::listarEquipos() {
+    cout << "EQUIPOS: " << endl;
+    for (const auto& comp : equipos) {
+        cout << "   - " << comp << endl;
+    }
+    cout << endl;
+}
 void Estadisticas::printEstadisticasEquipos(int umbral, bool esMax)
 {
+    cout << setw(25) << "EQUIPO"
+         << setw(15) << "PROMEDIO"
+         << setw(20) << "COMPETENCIA"
+         << endl;
     for (const auto &competencia : competiciones)
     {
         for (const auto &equipo : equipos)
         {
-            ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
+            EstadisticasEquipo *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
             if (px != nullptr)
             {
                 if ((esMax && px->promedioGoles() < umbral) ||
                     (!esMax && px->promedioGoles() > umbral))
                 {
-                    cout << equipo << " ,goles promedio: " << px->promedioGoles() << " en la competencia: " << competencia<<endl;
+                    cout << setw(25) << equipo
+                        << setw(15) << px->promedioGoles()
+                        << setw(20) << competencia
+                        << endl;
                 }
             }
         }
@@ -273,12 +304,7 @@ Estadisticas::Estadisticas() : Estadisticascompetencias(10, customHashFunc), Est
 Estadisticas::~Estadisticas() {
 };
 
-unordered_set<string> Estadisticas::CualesCompetencias()
-{
-    return competiciones;
-}
-
-void Estadisticas::Calculofinal()
+void Estadisticas::calculofinal()
 {
 
     // Logica para peor y mejor equipo por cantidad de goles, mejorable...
@@ -291,10 +317,10 @@ void Estadisticas::Calculofinal()
         cmejor = 0, cpeor = 1000;
         for (const auto &equipo : equipos)
         {
-            ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
+            EstadisticasEquipo *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
             if (px != nullptr)
             {
-                ESTADISTICAS_EQUIPO x = *px;
+                EstadisticasEquipo x = *px;
                 if (cpeor > x.goles)
                 {
                     cpeor = x.goles;
@@ -307,7 +333,7 @@ void Estadisticas::Calculofinal()
                 }
             }
         }
-        MEJORES_PARTIDOS *y = Estadisticascompetencias.buscar(competencia);
+        MejoresPartidos *y = Estadisticascompetencias.buscar(competencia);
         y->mejorequipo = mejor;
         y->peorequipo = peor;
         // Competencia con mas goles:
@@ -326,7 +352,7 @@ void Estadisticas::Calculofinal()
             co = 0;
             for (const auto &c : competiciones)
             {
-                ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(e + c);
+                EstadisticasEquipo *px = EstadisticasTodosLosEquipos.buscar(e + c);
                 if (px != nullptr)
                 {
                     co += px->goles;
@@ -348,37 +374,37 @@ void Estadisticas::Calculofinal()
     return;
 }
 
-void Estadisticas::MejorYPeorEquipo()
+void Estadisticas::mejorYPeorEquipo()
 {
     cout << "Equipo con mas goles: " << Absoluto[1] << endl;
     cout << "Equipo con menos goles: " << Absoluto[2] << endl;
 }
 
-void Estadisticas::Ingresar(Partido &p, const int &pp)
+void Estadisticas::ingresar(Partido &p, const int &pp)
 {
     competiciones.insert(p.competicion);
-    equipos.insert(p.equipolocal);
-    equipos.insert(p.equipovisitante);
-    ESTADISTICAS_EQUIPO temp, *ptemp;
+    equipos.insert(p.equipoLocal);
+    equipos.insert(p.equipoVisita);
+    EstadisticasEquipo temp, *ptemp;
 
     // Equipo Local
-    ptemp = EstadisticasTodosLosEquipos.buscar(p.equipolocal + p.competicion);
+    ptemp = EstadisticasTodosLosEquipos.buscar(p.equipoLocal + p.competicion);
     if (ptemp != nullptr)
     {
         temp = *ptemp;
-        if (temp.fechas[0] < p.goleslocales)
+        if (temp.fechas[0] < p.golesLocal)
         {
             temp.mejor_fecha = p.fecha;
-            temp.fechas[0] = p.goleslocales;
+            temp.fechas[0] = p.golesLocal;
         }
-        if (temp.fechas[1] > p.goleslocales)
+        if (temp.fechas[1] > p.golesLocal)
         {
             temp.peor_fecha = p.fecha;
-            temp.fechas[1] = p.goleslocales;
+            temp.fechas[1] = p.golesLocal;
         }
-        temp.goles += p.goleslocales;
-        temp.cgoles += p.golesvisitantes;
-        if (p.goleslocales > p.golesvisitantes)
+        temp.goles += p.golesLocal;
+        temp.cgoles += p.golesVisita;
+        if (p.golesLocal > p.golesVisita)
             temp.win++;
         else
             temp.lost++;
@@ -388,38 +414,38 @@ void Estadisticas::Ingresar(Partido &p, const int &pp)
     }
     else
     {
-        ESTADISTICAS_EQUIPO temp;
+        EstadisticasEquipo temp;
         temp.mejor_fecha = p.fecha;
-        temp.fechas[0] = p.goleslocales;
+        temp.fechas[0] = p.golesLocal;
         temp.peor_fecha = p.fecha;
-        temp.fechas[1] = p.goleslocales;
-        temp.goles += p.goleslocales;
-        temp.cgoles += p.golesvisitantes;
-        if (p.goleslocales > p.golesvisitantes)
+        temp.fechas[1] = p.golesLocal;
+        temp.goles += p.golesLocal;
+        temp.cgoles += p.golesVisita;
+        if (p.golesLocal > p.golesVisita)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
         temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
-        EstadisticasTodosLosEquipos.put(p.equipolocal + p.competicion, temp);
+        EstadisticasTodosLosEquipos.put(p.equipoLocal + p.competicion, temp);
     }
-    ptemp = EstadisticasTodosLosEquipos.buscar(p.equipovisitante + p.competicion);
+    ptemp = EstadisticasTodosLosEquipos.buscar(p.equipoVisita + p.competicion);
     if (ptemp != nullptr)
     {
         temp = *ptemp;
-        if (temp.fechas[0] < p.golesvisitantes)
+        if (temp.fechas[0] < p.golesVisita)
         {
             temp.mejor_fecha = p.fecha;
-            temp.fechas[0] = p.golesvisitantes;
+            temp.fechas[0] = p.golesVisita;
         }
-        if (temp.fechas[1] > p.golesvisitantes)
+        if (temp.fechas[1] > p.golesVisita)
         {
             temp.peor_fecha = p.fecha;
-            temp.fechas[1] = p.golesvisitantes;
+            temp.fechas[1] = p.golesVisita;
         }
-        temp.goles += p.golesvisitantes;
-        temp.cgoles += p.goleslocales;
-        if (p.golesvisitantes > p.goleslocales)
+        temp.goles += p.golesVisita;
+        temp.cgoles += p.golesLocal;
+        if (p.golesVisita > p.golesLocal)
             temp.win++;
         else
             temp.lost++;
@@ -429,28 +455,28 @@ void Estadisticas::Ingresar(Partido &p, const int &pp)
     }
     else
     {
-        ESTADISTICAS_EQUIPO temp;
+        EstadisticasEquipo temp;
         temp.mejor_fecha = p.fecha;
-        temp.fechas[0] = p.golesvisitantes;
+        temp.fechas[0] = p.golesVisita;
         temp.peor_fecha = p.fecha;
-        temp.fechas[1] = p.golesvisitantes;
-        temp.goles += p.golesvisitantes;
-        temp.cgoles += p.goleslocales;
-        if (p.golesvisitantes > p.goleslocales)
+        temp.fechas[1] = p.golesVisita;
+        temp.goles += p.golesVisita;
+        temp.cgoles += p.golesLocal;
+        if (p.golesVisita > p.golesLocal)
             temp.win++;
         else
             temp.lost++;
         temp.partidos++;
         temp.lista.push_back(pp); // Para llamar los partidos del equipo luego
-        EstadisticasTodosLosEquipos.put(p.equipovisitante + p.competicion, temp);
+        EstadisticasTodosLosEquipos.put(p.equipoVisita + p.competicion, temp);
     }
 
-    MEJORES_PARTIDOS *px = Estadisticascompetencias.buscar(p.competicion), x;
+    MejoresPartidos *px = Estadisticascompetencias.buscar(p.competicion), x;
     if (px != nullptr)
     {
         x = *px;
-        x.goals += p.goleslocales + p.golesvisitantes;
-        if ((p.goleslocales + p.golesvisitantes) >= (x.partidos[4].goleslocales + x.partidos[4].golesvisitantes))
+        x.goals += p.golesLocal + p.golesVisita;
+        if ((p.golesLocal + p.golesVisita) >= (x.partidos[4].golesLocal + x.partidos[4].golesVisita))
         {
             x.mejor(p);
         }
@@ -458,7 +484,7 @@ void Estadisticas::Ingresar(Partido &p, const int &pp)
     }
     else
     {
-        x.goals += p.goleslocales + p.golesvisitantes;
+        x.goals += p.golesLocal + p.golesVisita;
         x.partidos[0] = p;
         Estadisticascompetencias.put(p.competicion, x);
     }
@@ -487,12 +513,12 @@ void Estadisticas::printtodascompetencias()
     }
 }
 
-void Estadisticas::MasGolesCompeticion()
+void Estadisticas::masGolesCompeticion()
 {
     cout << "\nCompeticion con mas goles: " << Absoluto[0] << endl;
 }
 
-bool Estadisticas::EquipoyCompetenciaExiste(string hash)
+bool Estadisticas::equipoYCompetenciaExiste(string hash)
 {
     if (EstadisticasTodosLosEquipos.buscar(hash) != nullptr)
     {
@@ -526,9 +552,9 @@ void Estadisticas::print(string equipo, string competencia)
     }
 }
 
-void Estadisticas::Goles(string equipo, string competencia)
+void Estadisticas::goles(string equipo, string competencia)
 {
-    ESTADISTICAS_EQUIPO *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
+    EstadisticasEquipo *px = EstadisticasTodosLosEquipos.buscar(equipo + competencia);
     if (px != nullptr)
     {
         cout << equipo << " a favor: " << px->goles << " ,en contra: " << px->cgoles << " ,en la competencia: " << competencia << endl;
