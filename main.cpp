@@ -1,5 +1,10 @@
-#include"libreria.h"
+#include "libreria.h"
 #include "csv.h"
+
+using namespace std;
+
+vector<Partido> partidos;
+Estadisticas estadisticas_totales;
 
 void mostrarMenu() {
     cout << "===============================" << endl;
@@ -23,7 +28,7 @@ void mostrarMenu() {
     cout << "Seleccione una opción: ";
 }
 
-void CargaArchivo(ALMACEN &almacen, Estadisticas &estadisticas_totales)
+void cargarArchivo()
 {
     ifstream archivo("Base_Datos_COMA.csv");
     string linea;
@@ -46,8 +51,8 @@ void CargaArchivo(ALMACEN &almacen, Estadisticas &estadisticas_totales)
         carga.golesvisitantes = stoi(temp);
         getline(stream, carga.equipovisitante, ',');
         getline(stream, carga.competicion, ',');
+        
         // Calculos
-        almacen.agregar(carga);
         estadisticas_totales.Ingresar(carga, idx); // se puede usar almacen.last() en vez de c pero esto deberia ser mas rapido que llamar a una funcion
         idx++;
     }
@@ -57,9 +62,7 @@ void CargaArchivo(ALMACEN &almacen, Estadisticas &estadisticas_totales)
 }
 
 int main(){
-    ALMACEN almacen;
-    Estadisticas estadisticas_totales;
-    CargaArchivo(almacen, estadisticas_totales);
+    cargarArchivo();
     string op1,op2,op3;
 
     int opcion;
@@ -151,6 +154,14 @@ int main(){
             cout << "Opción inválida. Intente de nuevo.\n";
             break;
         };
+
+        // Para separar interacciones del menu
+        string r;
+        cout << "Continuar? (s/n): ";
+        getline(cin, r);
+        if (r == "s" || r == "") continue;
+        else if (r == "n") break;
+
     } while(opcion != 0);
 
     //Ejemplo de consulta
