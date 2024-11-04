@@ -10,7 +10,7 @@ private:
   HashEntry<K, T> **tabla;
   unsigned int tamanio;
 
-  static unsigned int hashFunc(K clave);
+  unsigned int hashFunc(K clave);
   unsigned int (*hashFuncP)(K clave);
 
 public:
@@ -123,19 +123,9 @@ bool HashMap<K, T>::esVacio()
 }
 
 template <class K, class T>
-unsigned int HashMap<K, T>::hashFunc(K clave)
+unsigned int HashMap<K, T>::*hashFunc(K clave)
 {
-    const unsigned int FNV_PRIME = 16777619u;
-    const unsigned int OFFSET_BASIS = 2166136261u;
-
-    unsigned int hash = OFFSET_BASIS;
-    for (char competencia : clave)
-    {
-        hash = hash * FNV_PRIME;
-        hash = hash ^ static_cast<unsigned int>(competencia);
-    }
-    return hash;
-}
+  return hashFuncP(clave);
 }
 
 template <class K, class T>

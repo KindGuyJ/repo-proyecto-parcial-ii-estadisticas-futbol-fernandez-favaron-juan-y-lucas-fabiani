@@ -5,12 +5,13 @@
 #include "libreria.h"
 using namespace std;
 
+const string archivoOg = "Base_Datos_COMA.csv";
 
-void eliminarRegistro(const string& nombreArchivo, int idEliminar) {
-    ifstream archivo(nombreArchivo);
+void eliminarRegistro(int idEliminar) {
+    ifstream archivo(archivoOg);
     ofstream temp("temp.csv"); // Archivo temporal
     string linea;
-    int idx = 0;
+    int idx = -1;
 
     while (getline(archivo, linea)) {
         if (idx != idEliminar) { // Copia todas las líneas excepto la que queremos eliminar
@@ -21,16 +22,16 @@ void eliminarRegistro(const string& nombreArchivo, int idEliminar) {
 
     archivo.close();
     temp.close();
-    remove(nombreArchivo.c_str()); // Elimina el archivo original
-    rename("temp.csv", nombreArchivo.c_str()); // Renombra el archivo temporal
+    remove(archivoOg.c_str()); // Elimina el archivo original
+    rename("temp.csv", archivoOg.c_str()); // Renombra el archivo temporal
     cout << "Registro eliminado correctamente." << endl;
 }
 
-void modificarRegistro(const string& nombreArchivo, int idModificar, const PARTIDO& nuevoRegistro) {
-    ifstream archivo(nombreArchivo);
+void modificarRegistro(int idModificar, const Partido& nuevoRegistro) {
+    ifstream archivo(archivoOg);
     ofstream temp("temp.csv"); // Archivo temporal
     string linea;
-    int idx = 0;
+    int idx = -1;
 
     while (getline(archivo, linea)) {
         if (idx == idModificar) { // Modifica el registro especificado
@@ -46,13 +47,13 @@ void modificarRegistro(const string& nombreArchivo, int idModificar, const PARTI
 
     archivo.close();
     temp.close();
-    remove(nombreArchivo.c_str()); // Elimina el archivo original
-    rename("temp.csv", nombreArchivo.c_str()); // Renombra el archivo temporal
+    remove(archivoOg.c_str()); // Elimina el archivo original
+    rename("temp.csv", archivoOg.c_str()); // Renombra el archivo temporal
     cout << "Registro modificado correctamente." << endl;
 }
 
-void agregarRegistro(const string& nombreArchivo, const PARTIDO& nuevoRegistro) {
-    ofstream archivo(nombreArchivo, ios::app); // Abrir en modo de adición
+void agregarRegistro(const Partido& nuevoRegistro) {
+    ofstream archivo(archivoOg, ios::app); // Abrir en modo de adición
     archivo << nuevoRegistro.jornada << "," << nuevoRegistro.fecha.toString() << ","
             << nuevoRegistro.equipolocal << "," << nuevoRegistro.goleslocales << ","
             << nuevoRegistro.golesvisitantes << "," << nuevoRegistro.equipovisitante << ","
