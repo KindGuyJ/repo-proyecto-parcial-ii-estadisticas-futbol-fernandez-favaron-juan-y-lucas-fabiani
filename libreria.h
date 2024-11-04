@@ -83,7 +83,11 @@ struct MEJORES_PARTIDOS
     void print(string competencia)
     {
         cout << endl
-             << "Competicion: " << competencia << endl;
+             << "Competicion: " << competencia << endl
+             << "Goles convertidos en la competencia: "<<goals<<endl
+             << "Mejor equipo por goles convertidos: "<<mejorequipo<<endl
+             << "Peor equipo por goles convertidos: "<<peorequipo<<endl<<endl;
+
         cout << setw(25) << "Jornada" << setw(8) << "\tFecha" << setw(30) << "\tEquipo Local" << setw(30) << "\tEquipo Visitante" << setw(8) << "\tGoles Local" << setw(10) << "\tGoles Visitante\n";
         for (int i = 5; i > 0; i--)
         {
@@ -326,7 +330,11 @@ public:
     void print(string equipo, string competencia); // No es final, solo debugging
     void llenado();
     void Calculofinal();
+    void MejorYPeorEquipo();
     vector<int> PARTIDOs(string equipo, string competencia);
+    void printcompetencia(string competencia);
+    void printtodascompetencias();
+    void MasGolesCompeticion();
 };
 
 Estadisticas::Estadisticas() : Estadisticascompetencias(30, customHashFunc), EstadisticasTodosLosEquipos(1000, customHashFunc)
@@ -337,8 +345,6 @@ Estadisticas::~Estadisticas() {
 
 void Estadisticas::Calculofinal()
 {
-    cout << competiciones.size() << endl;
-    cout << equipos.size() << endl;
 
     // Logica para peor y mejor equipo por cantidad de goles, mejorable...
     string mejor, peor;
@@ -399,19 +405,13 @@ void Estadisticas::Calculofinal()
         }
     }
     // Print para controlar, se debe eliminar de esta funcion y mover a otra
-    cout << "Competicion con mas goles: " << Absoluto[0] << endl;
-    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << cmejor << endl;
-    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << cpeor << endl;
-    cout << endl
-         << "Equipos con mas y menos goles por competicion:" << endl;
-    for (const auto &competencia : competiciones)
-    {
-        cout << "Competicion: " << competencia << endl;
-        cout << "   Mas goles: " << Estadisticascompetencias.get(competencia).mejorequipo << endl;
-        cout << "   Menos goles: " << Estadisticascompetencias.get(competencia).peorequipo << endl
-             << endl;
-    }
     return;
+}
+
+void Estadisticas::MejorYPeorEquipo()
+{
+    cout << "Equipo con mas goles: " << Absoluto[1] << " ,con: " << endl;
+    cout << "Equipo con menos goles: " << Absoluto[2] << " ,con: " << endl;
 }
 
 void Estadisticas::Ingresar(PARTIDO &p, const int &pp)
@@ -539,6 +539,29 @@ vector<int> Estadisticas::PARTIDOs(string equipo, string competencia)
     }
 }
 
+void Estadisticas::printtodascompetencias(){
+    for (const auto &c : competiciones)
+    {
+        printcompetencia(c);
+    }
+}
+
+void Estadisticas::MasGolesCompeticion()
+{
+    cout << "\nCompeticion con mas goles: " << Absoluto[0] << endl;
+}
+
+void Estadisticas::printcompetencia(string competencia){
+        if (Estadisticascompetencias.buscar(competencia))
+    {
+        Estadisticascompetencias.get(competencia).print(competencia);
+    }
+    else
+    {
+        cout << "\nError: 404\n";
+        cout << "Competencia inexistente\n";
+    }
+}
 // Imprime tanto las estadisticas del equipo en esa competencia como las estadisticas de la competencia ingresada
 void Estadisticas::print(string equipo, string competencia)
 {
@@ -550,15 +573,6 @@ void Estadisticas::print(string equipo, string competencia)
     {
         cout << "\nError: 404\n";
         cout << "Equipo no encontrado en competicion ingresada";
-    }
-    if (Estadisticascompetencias.buscar(competencia))
-    {
-        Estadisticascompetencias.get(competencia).print(competencia);
-    }
-    else
-    {
-        cout << "\nError: 404\n";
-        cout << "Competencia inexistente";
     }
 }
 
