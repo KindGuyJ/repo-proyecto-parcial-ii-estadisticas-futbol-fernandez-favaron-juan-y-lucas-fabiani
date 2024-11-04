@@ -190,74 +190,6 @@ public:
     {
         informacion.push_back(s);
     }
-    /// @brief
-    /// @param o A cual de todos los vectores asignar
-    /// @param x Nuevo string
-    /// @param i [0-6] 0-jornada; 1-fecha; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
-    void assign(int o, string x, int i)
-    {
-        switch (i)
-        {
-        case 0:
-            informacion[o].jornada = x;
-            break;
-        case 1:
-            informacion[o].fecha = x;
-            break;
-        case 2:
-            informacion[o].equipolocal = x;
-            break;
-        case 3:
-            informacion[o].goleslocales = stoi(x);
-            break;
-        case 4:
-            informacion[o].golesvisitantes = stoi(x);
-            break;
-        case 5:
-            informacion[o].equipovisitante = x;
-            break;
-        case 6:
-            informacion[o].competicion = x;
-            break;
-        default:
-            throw 666 - 1;
-            break;
-        }
-    }
-    /// @brief
-    /// @param o A cual vector leer
-    /// @param i [0-6] 0-jornada; 1-fecha; 2-equipolocal; 3-goleslocales; 4-golesvisitantes; 5-equipovisitante; 6-competicion;
-    /// @return la informacion
-    string get(int o, int i)
-    {
-        switch (i)
-        {
-        case 0:
-            return informacion[o].jornada;
-            break;
-        case 1:
-            return informacion[o].fecha.toString();
-            break;
-        case 2:
-            return informacion[o].equipolocal;
-            break;
-        case 3:
-            return to_string(informacion[o].goleslocales);
-            break;
-        case 4:
-            return to_string(informacion[o].golesvisitantes);
-            break;
-        case 5:
-            return informacion[o].equipovisitante;
-            break;
-        case 6:
-            return informacion[o].competicion;
-            break;
-        default:
-            throw 666 - 2;
-            break;
-        }
-    }
     // Reenvia la ubicacion del ultimo partido agregado
     int last()
     {
@@ -335,6 +267,7 @@ public:
     void printcompetencia(string competencia);
     void printtodascompetencias();
     void MasGolesCompeticion();
+    bool EquipoyCompetenciaExiste(string hash);
 };
 
 Estadisticas::Estadisticas() : Estadisticascompetencias(30, customHashFunc), EstadisticasTodosLosEquipos(1000, customHashFunc)
@@ -549,6 +482,14 @@ void Estadisticas::printtodascompetencias(){
 void Estadisticas::MasGolesCompeticion()
 {
     cout << "\nCompeticion con mas goles: " << Absoluto[0] << endl;
+}
+
+bool Estadisticas::EquipoyCompetenciaExiste(string hash)
+{
+    if (EstadisticasTodosLosEquipos.buscar(hash)!=nullptr){
+        return true;
+    }
+    return false;
 }
 
 void Estadisticas::printcompetencia(string competencia){

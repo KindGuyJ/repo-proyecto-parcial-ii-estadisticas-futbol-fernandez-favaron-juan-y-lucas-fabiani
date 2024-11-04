@@ -23,6 +23,25 @@ void mostrarMenu() {
     cout << "Seleccione una opción: ";
 }
 
+string EquipoValido(Estadisticas &estadisticas_totales, string &op1){
+    string op3,op2;
+        do{
+        size_t pos = op1.find(" y ");
+        if (pos != string::npos) {
+            // Extraer el nombre del equipo y de la competencia
+            op2 = op1.substr(0, pos);
+            op3 = op1.substr(pos + 3); // `+ 3` para saltar " y "
+            if (estadisticas_totales.EquipoyCompetenciaExiste(op2+op3))
+            {
+                return op2+op3;
+            }
+            ;
+        } else {
+            cout << "Formato incorrecto. Asegúrese de usar el formato '[equipo] y [competencia]'.\n";
+        }
+    } while (true);
+}
+
 void CargaArchivo(ALMACEN &almacen, Estadisticas &estadisticas_totales)
 {
     ifstream archivo("Base_Datos_COMA.csv");
@@ -83,16 +102,7 @@ int main(){
         case 3:
             cout<<"Ingresar: [(nombre del equipo) y (nombre de la competencia)] a consultar."<<endl;
             getline(cin,op1);
-            do{
-                size_t pos = op1.find(" y ");
-                if (pos != string::npos) {
-                    // Extraer el nombre del equipo y de la competencia
-                    op2 = op1.substr(0, pos);
-                    op3 = op1.substr(pos + 3); // `+ 3` para saltar " y "
-                    break;
-                } else {
-                    cout << "Formato incorrecto. Asegúrese de usar el formato '[equipo] y [competencia]'.\n";
-            }} while (true);
+            EquipoValido(estadisticas_totales, op1);
                 
             estadisticas_totales.print(op2,op3);
             break;
