@@ -12,7 +12,7 @@ Ejecute el programa con el siguiente comando en la terminal o ábralo directamen
 
 Se abrirá el menú principal en pantalla:
 
-![alt text](image.png)
+![alt text](capture1.png)
 
 ### Formato de datos
 
